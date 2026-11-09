@@ -1,0 +1,5 @@
+# Only index.php may be requested from this folder (keeps config.php and anything else private).
+Options -Indexes
+<FilesMatch "^(?!index\.php$).+$">
+  Require all denied
+</FilesMatch>

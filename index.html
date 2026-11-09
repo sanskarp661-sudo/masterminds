@@ -386,7 +386,6 @@ footer .logo-text{color:#fff}
 (function(){
 'use strict';
 const IMG = 'https://mymasterminds.in/uploads/landing/';
-const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
 const SITE = {
   phone:'8877997887', phone_fmt:'+91 8877 997 887', email:'admin@mymasterminds.com',
   hero_eyebrow:'MBA · Law · CUET · IPM · BBA · Study Abroad', hero_title:'Happy *Studying*',
@@ -912,19 +911,16 @@ document.addEventListener('submit', e => {
 
 function keepScroll(fn){ const y = scrollY; fn(); scrollTo(0, y); }
 
-/* ---------- live data (Supabase) ---------- */
+/* ---------- live data (PHP API on Hostinger) ---------- */
 const CFG = window.MM_CONFIG || {};
-const LIVE = !!(CFG.supabaseUrl && CFG.supabaseAnonKey);
-let dbPromise = null;
-function getDb(){
-  if (!LIVE) return Promise.resolve(null);
-  if (!dbPromise) dbPromise = new Promise((res, rej) => {
-    if (window.supabase && window.supabase.createClient) return res();
-    const sc = document.createElement('script'); sc.src = SUPABASE_CDN; sc.onload = res; sc.onerror = () => rej(new Error('Could not load Supabase'));
-    document.head.appendChild(sc);
-  }).then(() => window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {auth:{persistSession:false, autoRefreshToken:false}}))
-    .catch(err => { dbPromise = null; throw err; });
-  return dbPromise;
+const API = CFG.apiBase || '';
+const LIVE = !!API;
+async function api(action, payload){
+  const opt = payload ? {method:'POST', headers:{'Content-Type':'application/json', 'X-MM':'1'}, body:JSON.stringify(payload)} : {};
+  const res = await fetch(API + 'index.php?a=' + action, Object.assign({credentials:'same-origin'}, opt));
+  let data = null; try { data = await res.json(); } catch {}
+  if (!res.ok || !data) throw new Error((data && data.error) || 'Server unavailable (' + res.status + ')');
+  return data;
 }
 function applyData(d){
   if (Array.isArray(d.results)) RESULTS = d.results;
@@ -941,15 +937,11 @@ function refresh(){ renderStatic(); if (!formBusy()) keepScroll(render); }
 async function loadLive(){
   if (!LIVE) return;
   try {
-    const db = await getDb();
-    const pub = t => db.from(t).select('*').eq('published', true).order('sort', {ascending:true}).order('created_at', {ascending:true});
-    const [r, t, g, c] = await Promise.all([pub('results'), pub('testimonials'), pub('gallery'), db.from('content').select('key,value')]);
-    const err = [r,t,g,c].find(x => x.error); if (err) throw err.error;
-    const d = {results:r.data, testimonials:t.data, gallery:g.data, content:Object.fromEntries(c.data.map(x => [x.key, x.value]))};
+    const d = await api('public');
     applyData(d);
     try { localStorage.setItem('mm_live', JSON.stringify(d)); } catch {}
     refresh();
-  } catch (err) { console.warn('Master Minds: live content unavailable, showing saved content.', err); }
+  } catch (err) { console.warn('Master Minds: live content unavailable, showing saved content.', err.message); }
 }
 async function submitInquiry(f){
   const data = Object.fromEntries(new FormData(f));
@@ -962,18 +954,14 @@ async function submitInquiry(f){
   if (data.website) return done();            // spam bot filled the hidden field
   errEl.hidden = true; btn.disabled = true; btn.textContent = 'Sending…';
   try {
-    const db = await getDb();
-    if (db) {
-      const row = {name:data.name.trim().slice(0,120), phone:data.phone.trim().slice(0,20), email:data.email.trim().slice(0,200),
-        city:data.city.trim().slice(0,100), course:String(data.course).slice(0,100)};
-      const {error} = await db.from('inquiries').insert(row);
-      if (error) throw error;
-    } else console.warn('Master Minds: config.js is not filled in, so this enquiry was not saved.');
+    if (!LIVE) { console.warn('Master Minds: config.js has no apiBase, so this enquiry was not saved.'); return done(); }
+    await api('inquiry', {name:data.name, phone:data.phone, email:data.email, city:data.city, course:data.course});
     done();
   } catch (err) {
     console.error(err);
     btn.disabled = false; btn.textContent = 'Submit Inquiry';
-    errEl.innerHTML = `Sorry, we couldn't send your enquiry. Please try again or call us on <a href="tel:${esc(SITE.phone)}">${esc(SITE.phone_fmt||SITE.phone)}</a>.`;
+    const known = /valid|required|too long|Too many/.test(err.message);
+    errEl.innerHTML = `${known ? esc(err.message) + ' ' : "Sorry, we couldn't send your enquiry. "}Please try again or call us on <a href="tel:${esc(SITE.phone)}">${esc(SITE.phone_fmt||SITE.phone)}</a>.`;
     errEl.hidden = false;
   }
 }

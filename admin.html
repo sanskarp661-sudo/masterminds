@@ -171,19 +171,12 @@ dialog .df{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
 </head>
 <body>
 
-<!-- Not configured -->
+<!-- First run / not configured -->
 <div class="center hidden" id="setupScreen">
-  <div class="auth">
+  <form class="auth" id="setupForm">
     <div class="logo"><span class="logo-mark">MM</span><span class="logo-text">Master Minds<small>Admin</small></span></div>
-    <h2>Connect your database</h2>
-    <p>The admin panel needs a free Supabase project to store reviews, results, gallery photos, website content and form submissions.</p>
-    <ol>
-      <li>Create a project at <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a>.</li>
-      <li>Run <code>supabase/schema.sql</code> in its SQL Editor.</li>
-      <li>Paste the Project URL and anon key into <code>config.js</code>.</li>
-    </ol>
-    <p>Full steps are in <code>SETUP.md</code> in the repository.</p>
-  </div>
+    <div id="setupBody"></div>
+  </form>
 </div>
 
 <!-- Login -->
@@ -218,7 +211,6 @@ dialog .df{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
 <input type="file" id="filePick" accept="image/*" class="hidden">
 
 <script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
 'use strict';
@@ -240,36 +232,69 @@ function toast(msg, err){
 }
 const fail = (err, what) => { console.error(err); toast((what?what+': ':'')+(err && err.message || 'Something went wrong'), true); };
 
-if (!CFG.supabaseUrl || !CFG.supabaseAnonKey || !window.supabase){ show('setupScreen'); return; }
-const db = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
+const API = CFG.apiBase || '';
+async function api(action, payload, opts){
+  opts = opts || {};
+  let init = {credentials: API.startsWith('http') ? 'include' : 'same-origin'};
+  if (payload instanceof FormData) init = Object.assign(init, {method:'POST', headers:{'X-MM':'1'}, body:payload});
+  else if (payload) init = Object.assign(init, {method:'POST', headers:{'Content-Type':'application/json','X-MM':'1'}, body:JSON.stringify(payload)});
+  const res = await fetch(API + 'index.php?a=' + action + (opts.query ? '&' + new URLSearchParams(opts.query) : ''), init);
+  let data = null; try { data = await res.json(); } catch {}
+  if (res.status === 401 && !opts.auth) { show('loginScreen'); throw new Error((data && data.error) || 'Please sign in again.'); }
+  if (!res.ok || !data) throw new Error((data && data.error) || (res.status === 404 ? 'The api folder was not found on the server.' : 'Server error ('+res.status+')'));
+  return data;
+}
+const guard = (fn, what) => async (...a) => { try { return await fn(...a); } catch (err) { fail(err, what); } };
 
 /* ---------------- auth ---------------- */
+function setupMessage(html){ $('#setupBody').innerHTML = html; show('setupScreen'); }
 async function boot(){
-  const {data:{session}} = await db.auth.getSession();
-  if (!session) return show('loginScreen');
-  const {data:isAdmin, error} = await db.rpc('is_admin');
-  if (error || !isAdmin){
-    await db.auth.signOut();
-    show('loginScreen');
-    const e = $('#loginErr'); e.classList.remove('hidden');
-    e.innerHTML = error ? esc(error.message) : `<b>${esc(session.user.email)}</b> is not an admin yet. Add it in Supabase with:<br><code style="font-size:12px;word-break:break-all">insert into public.admins (user_id) select id from auth.users where email = '${esc(session.user.email)}';</code>`;
+  if (!API) return setupMessage(`<h2>Live features are off</h2><p><code>config.js</code> has no <code>apiBase</code>. See <code>SETUP.md</code>.</p>`);
+  let st;
+  try { st = await api('status', null, {auth:true}); }
+  catch (err) {
+    return setupMessage(`<h2>Can't reach the server</h2><div class="msg err">${esc(err.message)}</div>
+      <p>Check that the website is uploaded to Hostinger with the <code>api</code> folder, that <code>mm-config.php</code> has your database details, and that <code>database/schema.sql</code> was imported. Full steps are in <code>SETUP.md</code>.</p>
+      <button type="button" class="btn btn-navy" onclick="location.reload()" style="justify-content:center">Try again</button>`);
+  }
+  if (st.needsSetup){
+    setupMessage(`<h2>Create the first admin</h2><p>No admin account exists yet. The account you create now can add more admins later. This page only works once.</p>
+      <div class="msg err hidden" id="setupErr"></div>
+      <label class="f">Your name<input class="input" name="name" autocomplete="name" maxlength="120"></label>
+      <label class="f">Email<input class="input" type="email" name="email" required autocomplete="username"></label>
+      <label class="f">Password <span class="hint">at least 8 characters</span><input class="input" type="password" name="password" required minlength="8" autocomplete="new-password"></label>
+      <button class="btn btn-navy" type="submit" style="justify-content:center;padding:13px">Create admin &amp; sign in</button>`);
     return;
   }
-  $('#who').textContent = session.user.email;
+  if (!st.admin) return show('loginScreen');
+  enterApp(st.admin);
+}
+function enterApp(admin){
+  me = admin;
+  $('#who').textContent = admin.email;
   show('appScreen');
   renderNav(); go(location.hash.slice(1) || 'inquiries');
   refreshBadge();
 }
+let me = null;
+$('#setupForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, btn = f.querySelector('button[type=submit]'), errEl = $('#setupErr');
+  if (!btn) return;
+  errEl.classList.add('hidden'); btn.disabled = true;
+  try { const r = await api('setup', {name:f.name.value, email:f.email.value, password:f.password.value}, {auth:true}); enterApp(r.admin); toast('Admin account created'); }
+  catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+  btn.disabled = false;
+});
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const f = e.target, btn = f.querySelector('button'), errEl = $('#loginErr');
   errEl.classList.add('hidden'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Signing in…';
-  const {error} = await db.auth.signInWithPassword({email:f.email.value.trim(), password:f.password.value});
+  try { const r = await api('login', {email:f.email.value.trim(), password:f.password.value}, {auth:true}); f.password.value = ''; enterApp(r.admin); }
+  catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
   btn.disabled = false; btn.textContent = 'Sign in';
-  if (error){ errEl.textContent = error.message; errEl.classList.remove('hidden'); return; }
-  f.password.value = ''; boot();
 });
-$('#logout').onclick = async () => { await db.auth.signOut(); location.hash = ''; show('loginScreen'); };
+$('#logout').onclick = async () => { try { await api('logout', {}, {auth:true}); } catch {} location.hash = ''; show('loginScreen'); };
 
 /* ---------------- nav ---------------- */
 const VIEWS = [
@@ -277,7 +302,8 @@ const VIEWS = [
   ['results','Results','<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>'],
   ['testimonials','Reviews','<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'],
   ['gallery','Gallery','<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>'],
-  ['content','Website Content','<path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>']
+  ['content','Website Content','<path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>'],
+  ['admins','Admins & Password','<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>']
 ];
 let current = 'inquiries', newCount = 0;
 function renderNav(){
@@ -288,28 +314,20 @@ function go(v){
   if (!VIEWS.some(x => x[0]===v)) v = 'inquiries';
   current = v; history.replaceState(null, '', '#'+v); renderNav();
   $('#view').innerHTML = '<div class="empty"><span class="spin"></span></div>';
-  ({inquiries:viewInquiries, results:() => viewCollection('results'), testimonials:() => viewCollection('testimonials'), gallery:viewGallery, content:viewContent})[v]();
+  ({inquiries:viewInquiries, results:() => viewCollection('results'), testimonials:() => viewCollection('testimonials'),
+    gallery:viewGallery, content:viewContent, admins:viewAdmins})[v]();
 }
 async function refreshBadge(){
-  const {count} = await db.from('inquiries').select('id', {count:'exact', head:true}).eq('status','new');
-  newCount = count || 0; renderNav();
+  try { newCount = (await api('new_count')).count; renderNav(); } catch {}
 }
 
 /* ---------------- uploads ---------------- */
 async function uploadImage(file, folder){
   if (!file.type.startsWith('image/')) throw new Error(file.name+' is not an image');
   if (file.size > 5*1024*1024) throw new Error(file.name+' is larger than 5 MB');
-  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5) || 'jpg';
-  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
-  const {error} = await db.storage.from('media').upload(path, file, {cacheControl:'31536000', upsert:false, contentType:file.type});
-  if (error) throw error;
-  return db.storage.from('media').getPublicUrl(path).data.publicUrl;
+  const fd = new FormData(); fd.append('file', file); fd.append('folder', folder);
+  return (await api('upload', fd)).url;
 }
-function storagePath(u){
-  const m = String(u||'').match(/\/storage\/v1\/object\/public\/media\/(.+)$/);
-  return m ? decodeURIComponent(m[1]) : null;
-}
-async function removeFile(u){ const p = storagePath(u); if (p) await db.storage.from('media').remove([p]); }
 function pickFile(multiple){
   return new Promise(res => {
     const inp = $('#filePick'); inp.multiple = !!multiple; inp.value = '';
@@ -371,9 +389,8 @@ function openForm(title, fields, values, onSave){
 /* ---------------- inquiries ---------------- */
 let inq = [], inqFilter = 'all', inqSearch = '';
 async function viewInquiries(){
-  const {data, error} = await db.from('inquiries').select('*').order('created_at', {ascending:false}).limit(2000);
-  if (error) return fail(error, 'Could not load submissions');
-  inq = data; drawInquiries();
+  try { inq = (await api('inquiries')).rows; } catch (err) { return fail(err, 'Could not load submissions'); }
+  drawInquiries();
 }
 function inqRows(){
   const q = inqSearch.toLowerCase();
@@ -409,22 +426,19 @@ function drawInquiries(){
   const s = $('#inqSearch'); s.oninput = () => { inqSearch = s.value; const pos = s.selectionStart; drawInquiries(); const n = $('#inqSearch'); n.focus(); n.setSelectionRange(pos,pos); };
   $('#view').querySelectorAll('[data-filter]').forEach(b => b.onclick = () => { inqFilter = b.dataset.filter; drawInquiries(); });
   $('#view').querySelectorAll('tr[data-id]').forEach(tr => {
-    const r = inq.find(x => x.id===tr.dataset.id);
+    const r = inq.find(x => String(x.id)===tr.dataset.id);
     tr.querySelector('[data-status]').onchange = async e => {
       const status = e.target.value, prev = r.status;
-      const {error} = await db.from('inquiries').update({status}).eq('id', r.id);
-      if (error){ e.target.value = prev; return fail(error, 'Could not update'); }
+      try { await api('inquiry_update', {id:r.id, status}); } catch (err) { e.target.value = prev; return fail(err, 'Could not update'); }
       r.status = status; e.target.className = 'status st-'+status; toast('Marked as '+status); refreshBadge();
     };
     tr.querySelector('[data-note]').onclick = () => openForm('Note for '+r.name, [{name:'notes', label:'Internal note', type:'textarea', hint:'Only visible to admins'}], r, async v => {
-      const {error} = await db.from('inquiries').update({notes:v.notes}).eq('id', r.id);
-      if (error){ fail(error, 'Could not save note'); return false; }
+      try { await api('inquiry_update', {id:r.id, notes:v.notes}); } catch (err) { fail(err, 'Could not save note'); return false; }
       r.notes = v.notes; drawInquiries(); toast('Note saved'); return true;
     });
     tr.querySelector('[data-del]').onclick = async () => {
       if (!confirm(`Delete the enquiry from ${r.name}? This cannot be undone.`)) return;
-      const {error} = await db.from('inquiries').delete().eq('id', r.id);
-      if (error) return fail(error, 'Could not delete');
+      try { await api('inquiry_delete', {id:r.id}); } catch (err) { return fail(err, 'Could not delete'); }
       inq = inq.filter(x => x.id!==r.id); drawInquiries(); toast('Deleted'); refreshBadge();
     };
   });
@@ -476,9 +490,8 @@ const COLL = {
 };
 const collState = {results:{rows:[], q:''}, testimonials:{rows:[], q:''}};
 async function viewCollection(key){
-  const {data, error} = await db.from(key).select('*').order('sort', {ascending:true}).order('created_at', {ascending:true});
-  if (error) return fail(error, 'Could not load '+COLL[key].title.toLowerCase());
-  collState[key].rows = data; drawCollection(key);
+  try { collState[key].rows = (await api('list', null, {query:{t:key}})).rows; } catch (err) { return fail(err, 'Could not load '+COLL[key].title.toLowerCase()); }
+  drawCollection(key);
 }
 function drawCollection(key){
   const c = COLL[key], st = collState[key], q = st.q.toLowerCase();
@@ -497,29 +510,23 @@ function drawCollection(key){
   $('#addBtn').onclick = () => {
     const next = st.rows.reduce((m,r) => Math.max(m, r.sort||0), 0) + 1;
     openForm('Add '+c.singular.toLowerCase(), c.fields, {sort:next}, async v => {
-      const {data, error} = await db.from(key).insert(v).select().single();
-      if (error){ fail(error, 'Could not save'); return false; }
+      let data; try { data = (await api('save', v, {query:{t:key}})).row; } catch (err) { fail(err, 'Could not save'); return false; }
       st.rows.push(data); st.rows.sort((a,b) => a.sort-b.sort); drawCollection(key); toast(c.singular+' added'); return true;
     });
   };
   $('#view').querySelectorAll('tr[data-id]').forEach(tr => {
-    const r = st.rows.find(x => x.id===tr.dataset.id);
+    const r = st.rows.find(x => String(x.id)===tr.dataset.id);
     tr.querySelector('[data-pub]').onchange = async e => {
-      const {error} = await db.from(key).update({published:e.target.checked}).eq('id', r.id);
-      if (error){ e.target.checked = !e.target.checked; return fail(error, 'Could not update'); }
+      try { await api('save', {id:r.id, published:e.target.checked}, {query:{t:key}}); } catch (err) { e.target.checked = !e.target.checked; return fail(err, 'Could not update'); }
       r.published = e.target.checked; toast(r.published ? 'Now shown on website' : 'Hidden from website'); drawCollection(key);
     };
     tr.querySelector('[data-edit]').onclick = () => openForm('Edit '+c.singular.toLowerCase(), c.fields, r, async v => {
-      const {error} = await db.from(key).update(v).eq('id', r.id);
-      if (error){ fail(error, 'Could not save'); return false; }
-      if (r.photo_url && r.photo_url!==v.photo_url) removeFile(r.photo_url).catch(()=>{});
-      Object.assign(r, v); st.rows.sort((a,b) => a.sort-b.sort); drawCollection(key); toast('Saved'); return true;
+      let data; try { data = (await api('save', Object.assign({id:r.id}, v), {query:{t:key}})).row; } catch (err) { fail(err, 'Could not save'); return false; }
+      Object.assign(r, data); st.rows.sort((a,b) => a.sort-b.sort); drawCollection(key); toast('Saved'); return true;
     });
     tr.querySelector('[data-del]').onclick = async () => {
       if (!confirm(`Delete this ${c.singular.toLowerCase()}? This cannot be undone.`)) return;
-      const {error} = await db.from(key).delete().eq('id', r.id);
-      if (error) return fail(error, 'Could not delete');
-      removeFile(r.photo_url).catch(()=>{});
+      try { await api('delete', {id:r.id}, {query:{t:key}}); } catch (err) { return fail(err, 'Could not delete'); }
       st.rows = st.rows.filter(x => x.id!==r.id); drawCollection(key); toast('Deleted');
     };
   });
@@ -528,9 +535,8 @@ function drawCollection(key){
 /* ---------------- gallery ---------------- */
 let gal = [];
 async function viewGallery(){
-  const {data, error} = await db.from('gallery').select('*').order('sort', {ascending:true}).order('created_at', {ascending:true});
-  if (error) return fail(error, 'Could not load gallery');
-  gal = data; drawGallery();
+  try { gal = (await api('list', null, {query:{t:'gallery'}})).rows; } catch (err) { return fail(err, 'Could not load gallery'); }
+  drawGallery();
 }
 function drawGallery(){
   $('#view').innerHTML = `
@@ -551,8 +557,7 @@ function drawGallery(){
     for (const f of files){
       try {
         const u = await uploadImage(f, 'gallery');
-        const {data, error} = await db.from('gallery').insert({url:u, sort:++sort, published:true}).select().single();
-        if (error) throw error; gal.push(data); ok++;
+        gal.push((await api('save', {url:u, sort:++sort, published:true}, {query:{t:'gallery'}})).row); ok++;
       } catch (err) { fail(err, 'Upload failed'); }
     }
     if (ok) toast(`${ok} photo${ok>1?'s':''} added`);
@@ -564,10 +569,9 @@ function drawGallery(){
   drop.ondragleave = () => drop.classList.remove('over');
   drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); handle([...e.dataTransfer.files]); };
   $('#view').querySelectorAll('.gitem').forEach(el => {
-    const g = gal.find(x => x.id===el.dataset.id);
+    const g = gal.find(x => String(x.id)===el.dataset.id);
     const save = async (patch, msg) => {
-      const {error} = await db.from('gallery').update(patch).eq('id', g.id);
-      if (error) return fail(error, 'Could not save'), false;
+      try { await api('save', Object.assign({id:g.id}, patch), {query:{t:'gallery'}}); } catch (err) { fail(err, 'Could not save'); return false; }
       Object.assign(g, patch); toast(msg); return true;
     };
     el.querySelector('[data-cap]').onchange = e => save({caption:e.target.value.trim() || null}, 'Caption saved');
@@ -575,9 +579,7 @@ function drawGallery(){
     el.querySelector('[data-pub]').onchange = async e => { if (!await save({published:e.target.checked}, e.target.checked?'Now shown on website':'Hidden from website')) e.target.checked = !e.target.checked; };
     el.querySelector('[data-del]').onclick = async () => {
       if (!confirm('Delete this photo? This cannot be undone.')) return;
-      const {error} = await db.from('gallery').delete().eq('id', g.id);
-      if (error) return fail(error, 'Could not delete');
-      removeFile(g.url).catch(()=>{});
+      try { await api('delete', {id:g.id}, {query:{t:'gallery'}}); } catch (err) { return fail(err, 'Could not delete'); }
       gal = gal.filter(x => x.id!==g.id); drawGallery(); toast('Photo deleted');
     };
   });
@@ -608,9 +610,7 @@ const SITE_GROUPS = [
 ];
 const DESC_KEYS = PROGRAMS.filter(p => p[0] && p[0]!=='pte');
 async function viewContent(){
-  const {data, error} = await db.from('content').select('key,value');
-  if (error) return fail(error, 'Could not load content');
-  const c = Object.fromEntries(data.map(x => [x.key, x.value]));
+  let c; try { c = (await api('content')).content || {}; } catch (err) { return fail(err, 'Could not load content'); }
   const site = c.site || {}, branches = c.branches || [], loans = c.loans || [], desc = c.program_desc || {};
   const stats = (site.stats || []).concat([{},{},{},{}]).slice(0,4);
   $('#view').innerHTML = `
@@ -654,19 +654,49 @@ async function viewContent(){
     const loansOut = el('loans').value.split('\n').map(x => x.trim()).filter(Boolean);
     const descOut = Object.fromEntries(DESC_KEYS.map(([k]) => [k, el('desc_'+k).value.trim()]).filter(x => x[1]));
     const btn = form.querySelector('[type=submit]'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Saving';
-    const now = new Date().toISOString();
-    const {error} = await db.from('content').upsert([
-      {key:'site', value:siteOut, updated_at:now}, {key:'branches', value:brOut, updated_at:now},
-      {key:'loans', value:loansOut, updated_at:now}, {key:'program_desc', value:descOut, updated_at:now}]);
+    let ok = true;
+    try { await api('content_save', {items:{site:siteOut, branches:brOut, loans:loansOut, program_desc:descOut}}); } catch (err) { ok = false; fail(err, 'Could not save'); }
     btn.disabled = false; btn.textContent = 'Save changes';
-    if (error) return fail(error, 'Could not save');
+    if (!ok) return;
     toast('Website content saved — it is live now');
   };
 }
 
+/* ---------------- admins & password ---------------- */
+async function viewAdmins(){
+  let d; try { d = await api('admins'); } catch (err) { return fail(err, 'Could not load admins'); }
+  const fmt = v => v ? new Date(v.replace(' ','T')).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+  $('#view').innerHTML = `
+  <div class="head"><div><h1>Admins &amp; Password</h1><p>People who can sign in to this admin panel.</p></div><button class="btn btn-gold" id="addAdmin">+ Add admin</button></div>
+  <div class="panel" style="margin-bottom:22px"><div class="tbl-wrap"><table style="min-width:560px">
+    <thead><tr><th>Name</th><th>Email</th><th>Last sign-in</th><th></th></tr></thead>
+    <tbody>${d.rows.map(a => `<tr data-id="${a.id}"><td><b>${esc(a.name)||'—'}</b>${a.id===d.me?' <span class="pill in">You</span>':''}</td><td>${esc(a.email)}</td><td>${esc(fmt(a.last_login))}</td>
+      <td class="actions">${a.id===d.me?'':'<button class="btn btn-danger btn-sm" data-del>Remove</button>'}</td></tr>`).join('')}</tbody></table></div></div>
+  <form class="cgroup" id="pwForm" style="max-width:520px"><h2>Change your password</h2>
+    <label class="f">Current password<input class="input" type="password" name="current" required autocomplete="current-password"></label>
+    <label class="f">New password <span class="hint">at least 8 characters</span><input class="input" type="password" name="new" required minlength="8" autocomplete="new-password"></label>
+    <button class="btn btn-navy" type="submit" style="align-self:flex-start">Update password</button></form>`;
+  $('#addAdmin').onclick = () => openForm('Add admin', [
+      {name:'name', label:'Name', max:120}, {name:'email', label:'Email', type:'email', required:true, max:190},
+      {name:'password', label:'Password', type:'password', required:true, hint:'at least 8 characters — share it with them privately', max:200}], {}, async v => {
+    try { await api('admin_add', v); } catch (err) { fail(err, 'Could not add admin'); return false; }
+    toast('Admin added'); viewAdmins(); return true;
+  });
+  $('#view').querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+    const tr = b.closest('tr'), a = d.rows.find(x => String(x.id)===tr.dataset.id);
+    if (!confirm(`Remove ${a.email}? They will no longer be able to sign in.`)) return;
+    try { await api('admin_delete', {id:a.id}); } catch (err) { return fail(err, 'Could not remove'); }
+    toast('Admin removed'); viewAdmins();
+  });
+  $('#pwForm').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    try { await api('password', {current:f.current.value, new:f.new.value}); } catch (err) { return fail(err, 'Password not changed'); }
+    f.reset(); toast('Password updated');
+  };
+}
+
 window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (v && v!==current && !$('#appScreen').classList.contains('hidden')) go(v); });
-db.auth.onAuthStateChange(ev => { if (ev==='SIGNED_OUT') show('loginScreen'); });
-boot().catch(err => { fail(err, 'Could not start'); show('loginScreen'); });
+boot().catch(err => fail(err, 'Could not start'));
 })();
 </script>
 </body>

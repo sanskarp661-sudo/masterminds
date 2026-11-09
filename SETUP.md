@@ -1,76 +1,90 @@
-# Admin panel setup (about 10 minutes, free)
+# Setting up the website and admin panel on Hostinger
 
-The admin panel lives at **`/admin.html`** on your site, for example
-`https://sanskarp661-sudo.github.io/masterminds/admin.html`.
+The site runs on your Hostinger hosting with your Hostinger MySQL database.
 
-It lets you manage:
+| Piece | Where it runs |
+|---|---|
+| Website (`index.html`) | Hostinger, in `public_html` |
+| Admin panel (`admin.html`) | Hostinger, at `yourdomain.com/admin.html` |
+| API (`api/index.php`) | Hostinger. PHP talks to the MySQL database. |
+| Photos you upload | Hostinger, in `public_html/uploads/` |
+| Enquiries, reviews, results, content | Your Hostinger MySQL database |
 
-- **Form Submissions** – every enquiry from the “Book Your Free Counseling Session” form. You can search them, mark each one New / Contacted / Enrolled / Closed, add private notes, delete them and export to CSV (opens in Excel).
-- **Results** – the scores in “Our Success Stories”, with optional student photo, India/Abroad tab and program.
-- **Reviews** – student testimonials, with optional photo.
-- **Gallery** – upload, caption, reorder, hide or delete photos.
-- **Website Content** – phone, email, home banner text and image, highlight numbers, About text and image, call-to-action, footer text, branches, education-loan points and program card descriptions.
-
-Anything can be hidden from the website without deleting it, and changes show on the website straight away.
-
-The data is stored in **Supabase**, a free hosted database. You need to do the steps below once.
+Do these steps once. After that, every change pushed to GitHub uploads itself to Hostinger.
 
 ---
 
-## 1. Create a Supabase project
+## 1. Create the database tables
 
-1. Go to <https://supabase.com>, sign up and click **New project**.
-2. Pick any name (e.g. `masterminds`), set a database password (save it somewhere safe) and choose the region **Mumbai (ap-south-1)**.
-3. Wait a minute or two for it to finish setting up.
+1. In **hPanel → Databases → Management**, create a database if you don't already have one.
+   Note the **database name**, **username** and **password**. They look like `u123456789_masterminds`.
+2. Click **Enter phpMyAdmin** next to that database.
+3. Go to the **Import** tab, choose [`database/schema.sql`](database/schema.sql) from this repository and click **Import** (or **Go**).
+   This creates the tables and fills in the website's current results, reviews, gallery and text.
 
-## 2. Create the database tables
+> You can use an existing database. All the tables have their own names (`results`, `testimonials`, `gallery`, `content`, `inquiries`, `admins`, `rate_limits`), so check that none of these already exist in it.
 
-1. In your project, open **SQL Editor → New query**.
-2. Open [`supabase/schema.sql`](supabase/schema.sql) from this repository, copy **all** of it, paste it in and click **Run**.
-   You should see “Success. No rows returned”. This creates the tables, the security rules, the photo storage and fills in the current website content.
+## 2. Add your database details to the server
 
-## 3. Create your admin login
+1. Open **hPanel → Files → File Manager**.
+2. Go to the folder that **contains** `public_html` (one level up, usually `domains/yourdomain.com/`).
+3. Create a new file called **`mm-config.php`** there. Paste in the contents of [`api/config.sample.php`](api/config.sample.php) and fill in:
+   - `db_name`, `db_user`, `db_pass`: from step 1. `db_host` stays `localhost`.
+   - `secret`: type any long random text.
+   - `notify_email`: *(optional)* your email address, to get an email for every new enquiry.
 
-1. Go to **Authentication → Users → Add user → Create new user**.
-2. Enter the email and password you want to log in with, tick **Auto Confirm User**, and click **Create user**.
-3. Back in **SQL Editor**, run this line (with your email):
+Keeping this file outside `public_html` means nobody can open it in a browser, and deployments never overwrite it.
+(If File Manager doesn't let you go above `public_html`, save it as `public_html/api/config.php` instead. That folder blocks direct access too.)
 
-   ```sql
-   insert into public.admins (user_id) select id from auth.users where email = 'you@example.com';
-   ```
+## 3. Upload the website
 
-   Repeat steps 1–3 for each extra person who should have access.
-4. Recommended: **Authentication → Sign In / Providers → Email**: turn off **Allow new users to sign up**, so nobody else can create accounts.
+**Option A: automatic from GitHub (recommended).** Every push to `main` uploads the site.
 
-## 4. Connect the website
+1. In **hPanel → Files → FTP Accounts**, note the **FTP IP/hostname** and **username**, and set or reset the password.
+2. In GitHub, open the repository **Settings → Secrets and variables → Actions → New repository secret** and add:
+   | Name | Value |
+   |---|---|
+   | `FTP_SERVER` | the FTP hostname or IP, e.g. `ftp.yourdomain.com` |
+   | `FTP_USERNAME` | the FTP username |
+   | `FTP_PASSWORD` | the FTP password |
+   | `FTP_DIR` | *(optional)* folder to upload into. Default `public_html/`. If your FTP account already opens inside `public_html`, set this to `./` |
+3. Open the **Actions** tab → **Deploy to Hostinger** → **Run workflow**. Later pushes upload automatically.
 
-1. In Supabase open **Project Settings → API** (or **Data API**).
-2. Copy the **Project URL** and the **anon public** key.
-3. In this repository edit [`config.js`](config.js) and paste them in:
+**Option B: by hand.** Upload these into `public_html` with File Manager: `index.html`, `admin.html`, `config.js`, the `api` folder and the `uploads` folder.
 
-   ```js
-   window.MM_CONFIG = {
-     supabaseUrl: 'https://abcdefgh.supabase.co',
-     supabaseAnonKey: 'eyJhbGciOi...'
-   };
-   ```
+Make sure the **`uploads`** folder is writable (File Manager → right-click → Permissions → `755`). Photos uploaded from the admin panel are saved there.
 
-4. Commit the change. GitHub Pages redeploys automatically.
+## 4. Create your admin account
 
-The anon key is designed to be public. The security rules in `schema.sql` mean visitors can only **read** published content and **send** enquiries. Only logged-in admins can see enquiries or change anything.
+Open **`https://yourdomain.com/admin.html`**.
 
-> **Never** paste the `service_role` key into `config.js`. That key bypasses all security rules.
+The first time, it asks you to **create the first admin** (name, email, password). That page only works once. After that, everyone signs in normally.
 
-## 5. Log in
-
-Open `/admin.html`, sign in with the email and password from step 3, and you’re in.
+You can add more admins, remove them, and change your password under **Admins & Password**.
 
 ---
+
+## What the admin panel does
+
+- **Form Submissions:** every enquiry from the counseling form. Search them, mark each New / Contacted / Enrolled / Closed, add private notes, delete, and export to CSV (opens in Excel). New ones show a red count in the menu.
+- **Results:** success-story scores with optional student photo, India/Abroad tab and program.
+- **Reviews:** student testimonials with optional photo.
+- **Gallery:** upload several photos at once, add captions, reorder, hide or delete.
+- **Website Content:** phone, email, home banner text and image, highlight numbers, About text and image, call-to-action, footer text, branches, education-loan points and program card descriptions.
+- **Admins & Password:** add or remove admins and change your password.
+
+Anything can be hidden without deleting it. Changes show on the website straight away.
 
 ## Good to know
 
-- **Formatting:** in headings, wrap words in `*stars*` to show them in the gold italic style, e.g. `Happy *Studying*`.
-- **Photos:** JPG, PNG or WebP, up to 5 MB each. Smaller, compressed photos make the website load faster.
-- **If Supabase is unreachable,** the website keeps showing the last content it loaded. If `config.js` is empty, it shows its built-in content.
-- **Free plan limits:** Supabase’s free plan includes 500 MB of database and 1 GB of file storage, which is plenty for this site. Free projects are **paused after 7 days with no activity**. Normal website traffic counts as activity, but if the site gets no visits for a week, log in to supabase.com and click **Restore**.
-- **Email alerts for new enquiries:** not included yet. This can be added with a Supabase Database Webhook and an email service.
+- **Formatting:** in headings, wrap words in `*stars*` for the gold italic style, e.g. `Happy *Studying*`.
+- **Photos:** JPG, PNG, WebP or GIF, up to 5 MB. Smaller photos make the site faster.
+- **Security:**
+  - Passwords are stored encrypted (hashed).
+  - Sign-in is limited to 10 wrong attempts per 15 minutes.
+  - The enquiry form accepts up to 5 enquiries per visitor every 10 minutes, and includes a hidden spam trap.
+  - Only admins can read enquiries or change anything.
+  - Use HTTPS on your domain (hPanel → Security → SSL), which Hostinger gives free.
+- **If the server can't be reached,** the website keeps showing the last content it loaded, so it never looks broken.
+- **Email alerts** use Hostinger's built-in mail. If they land in spam, mark them "not spam" once.
+- **Website on a different domain from the API** (e.g. GitHub Pages): set `apiBase` in `config.js` to the full API address, and add the website's address to `allowed_origins` in `mm-config.php`. Hosting everything on Hostinger is simpler.
