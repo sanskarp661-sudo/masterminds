@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master Minds Coaching</title>
+<meta name="description" content="Master Minds — coaching for MBA, Law, CUET, IPM, BBA, Hotel Management and Study Abroad (GMAT, GRE, SAT, IELTS, TOEFL).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#fff; --surface-2:#f3f0e8; --chip:#ece8df; --input:#faf9f6;
+  --line:#e6e2d9; --line-2:#efebe3; --input-line:#ddd8cd;
+  --ink:#1a1d29; --ink-2:#2b2f3d; --ink-3:#3c4150; --muted:#5b6070;
+  --navy:#16203f; --navy-2:#24305a; --navy-deep:#0f1730; --head:#16203f;
+  --gold:#f2b33d; --gold-2:#e5a322; --gold-ink:#b97c0c;
+  --on-navy:#fff; --on-navy-2:#c9cde0; --on-navy-3:#8d93ad;
+  --header-bg:rgba(247,245,240,.94);
+  --shadow:0 14px 30px rgba(22,32,63,.08);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1122; --surface:#151b30; --surface-2:#1b2240; --chip:#1f2747; --input:#11172b;
+  --line:#262e4d; --line-2:#222a47; --input-line:#2e3758;
+  --ink:#e8e9f0; --ink-2:#d7d9e4; --ink-3:#c3c6d4; --muted:#9ba0b6; --head:#f3f1ea;
+  --navy:#1c2750; --navy-2:#27346a; --navy-deep:#080c1a; --gold-ink:#f2b33d;
+  --header-bg:rgba(12,17,34,.92); --shadow:0 14px 30px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --bg:#0c1122; --surface:#151b30; --surface-2:#1b2240; --chip:#1f2747; --input:#11172b;
+  --line:#262e4d; --line-2:#222a47; --input-line:#2e3758;
+  --ink:#e8e9f0; --ink-2:#d7d9e4; --ink-3:#c3c6d4; --muted:#9ba0b6; --head:#f3f1ea;
+  --navy:#1c2750; --navy-2:#27346a; --navy-deep:#080c1a; --gold-ink:#f2b33d;
+  --header-bg:rgba(12,17,34,.92); --shadow:0 14px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--head);text-decoration:none}
+a:hover{color:var(--gold-ink)}
+h1,h2,h3,h4{font-family:'Bricolage Grotesque',sans-serif;margin:0;text-wrap:balance}
+p,ul{margin:0;text-wrap:pretty}
+input,select,button{font-family:inherit}
+img{max-width:100%}
+.serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:var(--gold)}
+.wrap{max-width:1240px;margin:0 auto;padding-left:24px;padding-right:24px}
+.eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-ink);font-weight:600}
+.eyebrow.on-dark{color:var(--gold)}
+.eyebrow.sm{font-size:12px}
+.h2{font-size:clamp(34px,4.4vw,54px);line-height:1.02;letter-spacing:-.025em;color:var(--head)}
+.sec{padding-top:110px}
+.sec.tight{padding-top:72px}
+.sec-head{display:flex;flex-direction:column;gap:14px;margin-bottom:36px}
+.sec-head p{font-size:17px;color:var(--muted)}
+.row-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:36px}
+.btn{display:inline-block;border:0;border-radius:999px;font-weight:600;cursor:pointer;padding:14px 24px;font-size:15px;text-align:center}
+.btn-gold{background:var(--gold);color:#16203f}.btn-gold:hover{background:var(--gold-2);color:#16203f}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy-2);color:#fff}
+.btn-ghost{border:1px solid rgba(255,255,255,.3);color:#fff;background:transparent}.btn-ghost:hover{border-color:#fff;color:#fff}
+.btn-white{background:#fff;color:#16203f}.btn-white:hover{background:var(--gold);color:#16203f}
+.btn-outline{border:1px solid var(--line);background:var(--surface);color:var(--head);padding:10px 16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px}
+.navy-block{background:var(--navy);border-radius:28px;color:#fff;overflow:hidden}
+
+/* Header */
+header{position:sticky;top:0;z-index:20;background:var(--header-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;gap:28px;padding-top:14px;padding-bottom:14px}
+.logo{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo-mark{width:36px;height:36px;border-radius:10px;background:#16203f;color:#f2b33d;display:grid;place-items:center;font:700 15px 'Bricolage Grotesque',sans-serif}
+.logo-text{font:700 19px 'Bricolage Grotesque',sans-serif;color:var(--head);letter-spacing:-.01em}
+.mainnav{display:flex;gap:4px;font-size:15px;font-weight:500;flex:1;white-space:nowrap;align-items:center}
+.mainnav a,.mainnav button{padding:8px 12px;border-radius:999px;color:var(--head);background:transparent;border:0;font-size:15px;font-weight:500;cursor:pointer}
+.mainnav a:hover,.mainnav button:hover{background:var(--chip);color:var(--head)}
+.mainnav a.active{background:var(--navy);color:#fff}
+.mainnav button.active{background:var(--chip)}
+.hactions{display:flex;align-items:center;gap:10px;white-space:nowrap;margin-left:auto}
+.btn-login{border:1px solid var(--head);color:var(--head);padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px}
+.btn-login:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-cta{background:var(--gold);color:#16203f;padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px}
+.btn-cta:hover{background:var(--gold-2);color:#16203f}
+.menu-btn{display:none;border:0;background:var(--navy);color:#fff;padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;cursor:pointer}
+.mega{display:none;border-top:1px solid var(--line);background:var(--surface)}
+.mega.open{display:block}
+.mega-grid{padding-top:28px;padding-bottom:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:32px}
+.mega-col{display:flex;flex-direction:column;gap:12px}
+.mega-links{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.mega-links a{padding:10px 12px;border-radius:10px;font-weight:600}
+.mega-links a:hover{background:var(--surface-2)}
+.mega-cta{background:#16203f;border-radius:18px;padding:22px;color:#fff;display:flex;flex-direction:column;gap:12px;justify-content:space-between}
+.mega-cta span{font:600 20px/1.2 'Bricolage Grotesque',sans-serif}
+.mobnav{display:none;border-top:1px solid var(--line);padding:8px 24px 18px;flex-direction:column;font-size:16px;font-weight:500;max-height:75vh;overflow:auto}
+.mobnav.open{display:flex}
+.mobnav a{padding:12px 0;border-bottom:1px solid var(--line-2)}
+.mobnav .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.mobnav .grid2 a{padding:10px 0}
+@media (max-width:1180px){.mainnav{display:none}.menu-btn{display:inline-block}}
+@media (min-width:1181px){.mobnav.open{display:none}}
+@media (max-width:620px){.btn-cta{display:none}.hbar{gap:12px}.btn-login{padding:9px 12px}}
+@media (max-width:440px){.lg-full{display:none}.hactions{gap:6px}.menu-btn{padding:10px 14px}}
+
+/* Home hero */
+.hero{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));align-items:end}
+.hero-copy{padding:clamp(32px,6vw,72px);display:flex;flex-direction:column;gap:26px;align-self:center}
+.hero h1{font-size:clamp(48px,7vw,92px);line-height:.95;letter-spacing:-.03em;font-weight:700}
+.hero-copy>p{font-size:18px;line-height:1.55;color:var(--on-navy-2);max-width:460px}
+.search{display:flex;gap:8px;background:#fff;border-radius:999px;padding:6px;max-width:480px}
+.search input{flex:1;min-width:0;border:0;outline:0;padding:0 18px;font-size:15px;background:transparent;color:#1a1d29}
+.search button{border:0;background:#16203f;color:#fff;padding:12px 22px;border-radius:999px;font-weight:600;cursor:pointer}
+.hero-art{position:relative;min-height:440px;display:flex;justify-content:center;align-items:flex-end}
+.hero-art .sun{position:absolute;width:78%;aspect-ratio:1;border-radius:50%;background:var(--gold);bottom:-12%;left:11%}
+.hero-art img{position:relative;max-height:560px;display:block;object-fit:contain}
+.badge{position:absolute;left:24px;bottom:40px;background:#fff;border-radius:16px;padding:14px 18px;box-shadow:0 12px 30px rgba(0,0,0,.2);display:flex;gap:12px;align-items:center}
+.badge strong{font:700 22px 'Bricolage Grotesque',sans-serif;color:#16203f}
+.badge span{font-size:13px;line-height:1.3;color:#5b6070}
+.statbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-top:0;border-radius:0 0 20px 20px;overflow:hidden;margin:0 24px}
+.statbar div{background:var(--surface);padding:20px 24px;display:flex;flex-direction:column;gap:2px}
+.statbar strong{font:700 24px 'Bricolage Grotesque',sans-serif;color:var(--head)}
+.statbar span{font-size:14px;color:var(--muted)}
+@media (max-width:620px){.statbar{margin:0 12px}.hero-art{min-height:340px}}
+
+/* Page hero */
+.phero{position:relative;padding:clamp(32px,5vw,64px);display:flex;flex-direction:column;gap:20px}
+.phero .sun{position:absolute;width:340px;height:340px;border-radius:50%;background:var(--gold);right:-110px;top:-140px;opacity:.95}
+.phero>*{position:relative}
+.crumbs{display:flex;gap:8px;font-size:14px;flex-wrap:wrap}
+.crumbs a{color:var(--on-navy-2)}.crumbs a:hover{color:var(--gold)}
+.crumbs .sep{color:#5b6385}
+.phero h1{font-size:clamp(38px,5.4vw,72px);line-height:1;letter-spacing:-.03em;max-width:900px}
+.phero p{font-size:18px;line-height:1.55;color:var(--on-navy-2);max-width:680px}
+.phero-stats{display:flex;gap:40px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.14);padding-top:22px;margin-top:6px}
+.phero-stats div{display:flex;flex-direction:column;gap:2px}
+.phero-stats strong{font:700 34px 'Bricolage Grotesque',sans-serif;color:var(--gold)}
+.phero-stats span{font-size:14px;color:var(--on-navy-2)}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--chip);padding:4px;border-radius:999px;flex-wrap:wrap}
+.tabs button{border:0;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted)}
+.tabs button.on{background:var(--navy);color:#fff}
+.tabs.dark{background:rgba(255,255,255,.08)}
+.tabs.dark button{color:var(--on-navy-2)}
+.tabs.dark button.on{background:var(--gold);color:#16203f}
+
+/* Programs */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:16px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:22px;color:var(--ink);transition:transform .2s,box-shadow .2s,border-color .2s}
+.pcard:hover{border-color:var(--head);transform:translateY(-3px);box-shadow:var(--shadow);color:var(--ink)}
+.pcard.hit{outline:2px solid var(--gold)}
+.pcard .top{display:flex;justify-content:space-between;align-items:flex-start}
+.tile{min-width:56px;height:56px;padding:0 10px;border-radius:14px;display:grid;place-items:center;font:700 15px 'Bricolage Grotesque',sans-serif}
+.tile.in{background:#16203f;color:#f2b33d}.tile.ab{background:#f2b33d;color:#16203f}
+.cat{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);padding:5px 10px;border-radius:999px}
+.pcard .bot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pcard h3{font-size:21px;letter-spacing:-.01em;color:var(--head)}
+.pcard .arr{font-size:20px;color:var(--gold-ink)}
+
+/* Program detail */
+.pdetail{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:48px;align-items:start}
+@media (max-width:1180px){.pdetail{grid-template-columns:minmax(0,1fr)}}
+.pmain{display:flex;flex-direction:column;gap:56px;min-width:0}
+.psec{display:flex;flex-direction:column;gap:16px}
+.psec h2{font-size:clamp(26px,3vw,36px);letter-spacing:-.02em;color:var(--head)}
+.psec>p{font-size:17px;line-height:1.65;color:var(--ink-3)}
+.bullets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.bullets div{display:flex;gap:10px;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none;transform:translateY(-2px)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.cards div{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:8px}
+.cards h3{font-size:19px;color:var(--head);letter-spacing:-.01em}
+.cards p{font-size:15px;line-height:1.55;color:var(--muted)}
+aside.side{position:sticky;top:96px;display:flex;flex-direction:column;gap:16px}
+@media (max-width:1180px){aside.side{position:static}}
+.side .box{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.exams{display:flex;flex-wrap:wrap;gap:8px}
+.exams span{background:#16203f;color:#fff;padding:8px 13px;border-radius:999px;font-size:14px;font-weight:600}
+.elig{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line-2);padding-top:16px;margin-top:4px}
+.elig div{display:flex;gap:10px;font-size:14px;line-height:1.5;color:var(--ink-3)}
+.elig b{color:var(--gold-ink)}
+.side .gold{background:var(--gold);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:12px;color:#16203f}
+.side .gold strong{font:700 21px/1.2 'Bricolage Grotesque',sans-serif}
+.side .gold p{font-size:14px;line-height:1.5}
+
+/* About */
+.about{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr))}
+.about .ph{min-height:420px;position:relative;background:#24305a}
+.about .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.about .tx{padding:clamp(32px,5vw,64px);display:flex;flex-direction:column;gap:22px}
+.about h2{font-size:clamp(32px,3.8vw,46px);line-height:1.05;letter-spacing:-.025em}
+.about .tx>p{font-size:16px;line-height:1.65;color:var(--on-navy-2)}
+.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border-top:1px solid rgba(255,255,255,.14);padding-top:22px;font-size:14px;font-weight:600}
+.ways{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px}
+.ways a{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:12px}
+.ways a:hover{border-color:var(--head)}
+.mono{font:600 13px ui-monospace,Menlo,monospace;color:var(--gold-ink)}
+.ways h3{font-size:24px;color:var(--head)}
+.ways p{font-size:15px;line-height:1.55;color:var(--muted)}
+
+/* Marquees */
+@keyframes mm-ltr{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@keyframes mm-rtl{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee{overflow:hidden;margin:0 -24px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.track{display:flex;gap:16px;width:max-content;padding:0 8px;animation:mm-ltr 40s linear infinite}
+.track.rtl{animation-name:mm-rtl}
+.track:hover{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.track{animation:none}.marquee{overflow-x:auto}}
+.stories{margin-top:110px;background:var(--navy-deep);color:#fff}
+.stories .wrap{padding-top:96px;padding-bottom:96px}
+.stories .h2{color:#fff}
+.scard{width:240px;flex:none;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:18px}
+.scard .img{aspect-ratio:4/3;border-radius:12px;background:linear-gradient(135deg,#24305a,#16203f);display:grid;place-items:center;font:700 34px 'Bricolage Grotesque',sans-serif;color:rgba(242,179,61,.35)}
+.scard .b{padding:0 8px 10px;display:flex;flex-direction:column;gap:6px}
+.scard .score{font:700 30px 'Bricolage Grotesque',sans-serif;color:var(--gold);letter-spacing:-.02em}
+.scard .metric{font-size:13px;color:var(--on-navy-3)}
+.scard .school{font-size:16px;font-weight:600;margin-top:6px}
+.tcard{width:360px;max-width:80vw;flex:none;margin:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:24px;justify-content:space-between}
+.tcard .q{font:400 54px/0.6 'Instrument Serif',serif;color:var(--gold);height:24px}
+.tcard blockquote{margin:0;font-size:16px;line-height:1.6;color:var(--ink-2)}
+.tcard figcaption{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line-2);padding-top:18px}
+.av{width:42px;height:42px;border-radius:50%;background:#16203f;color:#f2b33d;display:grid;place-items:center;font:700 14px 'Bricolage Grotesque',sans-serif;flex:none}
+.tcard strong{font-size:15px;color:var(--head);display:block}
+.tcard small{font-size:13px;color:var(--gold-ink);font-weight:600}
+
+/* Gallery */
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.gallery button{border:0;padding:0;cursor:zoom-in;border-radius:20px;overflow:hidden;aspect-ratio:4/5;background:var(--line)}
+.gallery button:hover{opacity:.9}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block}
+.lightbox{position:fixed;inset:0;z-index:50;background:rgba(15,23,48,.85);display:none;place-items:center;padding:24px;cursor:zoom-out}
+.lightbox.open{display:grid}
+.lightbox img{max-height:90vh;border-radius:16px}
+
+/* Counsel */
+.counsel{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:20px;scroll-margin-top:80px}
+.loans{background:var(--gold);border-radius:28px;padding:clamp(32px,5vw,56px);display:flex;flex-direction:column;gap:28px;color:#16203f}
+.loans .eyebrow{color:#16203f;font-weight:700}
+.loans h2,.contactc h2{font-size:clamp(30px,3.6vw,44px);line-height:1.05;letter-spacing:-.025em}
+.loans .li{display:flex;gap:16px;align-items:baseline;padding:14px 0;border-top:1px solid rgba(22,32,63,.18)}
+.loans .li span:first-child{font:600 13px ui-monospace,Menlo,monospace;opacity:.6}
+.loans .li span:last-child{font-size:17px;font-weight:600}
+.loans a.more{align-self:flex-start;color:#16203f;font-weight:700;border-bottom:2px solid #16203f;padding-bottom:2px}
+.contactc{background:var(--navy);border-radius:28px;padding:clamp(32px,5vw,56px);display:flex;flex-direction:column;gap:28px;color:#fff}
+.contactc a{display:flex;justify-content:space-between;gap:16px;padding:18px 0;border-top:1px solid rgba(255,255,255,.14);color:#fff;flex-wrap:wrap}
+.contactc a:hover{color:var(--gold)}
+.contactc a span{color:var(--on-navy-3)}
+.formc{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:clamp(28px,4vw,48px);display:flex;flex-direction:column;gap:22px}
+.formc h3{font-size:28px;letter-spacing:-.02em;color:var(--head)}
+.formc>div>p{font-size:15px;color:var(--muted)}
+.formc strong{color:var(--head)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+.form label,.login-form label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.form input,.form select,.login-form input{border:1px solid var(--input-line);border-radius:12px;padding:13px 14px;font-size:15px;background:var(--input);color:var(--ink);outline-color:var(--gold)}
+.form .full{grid-column:1/-1}
+.done{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:40px 0}
+.check{width:52px;height:52px;border-radius:50%;background:#16203f;color:#f2b33d;display:grid;place-items:center;font-size:24px}
+.done h4{font-size:24px;color:var(--head)}
+.done p{color:var(--muted);font-size:15px}
+
+/* Branches */
+.bgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px}
+.bcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.bcard h3{font-size:22px;color:var(--head);letter-spacing:-.01em}
+.bcard p{font-size:14px;line-height:1.55;color:var(--muted);flex:1}
+.bcard .ph{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line-2);padding-top:14px}
+.bcard .ph a{font-size:15px;font-weight:600}
+
+/* Login / policy */
+.login{max-width:560px;margin:0 auto;padding:56px 24px 0}
+.login .card{border-radius:28px;padding:clamp(24px,4vw,40px);display:flex;flex-direction:column;gap:22px}
+.login .tabs{display:grid;grid-template-columns:1fr 1fr}
+.login .tabs button{padding:12px;font-size:15px}
+.login-form{display:flex;flex-direction:column;gap:14px}
+.login-form p{font-size:14px;color:var(--muted);text-align:center}
+.policy{max-width:820px;margin:0 auto;padding:64px 24px 0;display:flex;flex-direction:column;gap:18px}
+.policy h2{font-size:24px;color:var(--head);margin-top:12px}
+.policy p,.policy li{font-size:16px;line-height:1.7;color:var(--ink-3)}
+.policy ul{padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.pills a{background:var(--surface);border:1px solid var(--line);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600}
+
+/* CTA + footer */
+.cta{padding:clamp(36px,5vw,64px);display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
+.cta h2{font-size:clamp(30px,4vw,48px);line-height:1.05;letter-spacing:-.025em}
+.cta p{font-size:16px;color:var(--on-navy-2);margin-top:12px;max-width:620px}
+footer{background:var(--navy-deep);color:var(--on-navy-2);margin-top:110px}
+footer .wrap{padding-top:64px;padding-bottom:28px;display:flex;flex-direction:column;gap:48px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:36px}
+.fcol{display:flex;flex-direction:column;gap:10px;font-size:14px}
+.fcol a{color:var(--on-navy-2)}.fcol a:hover{color:var(--gold)}
+.fcol .t{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--on-navy-3);font-weight:600;margin-bottom:4px}
+footer .logo-mark{background:#f2b33d;color:#16203f}
+footer .logo-text{color:#fff}
+.fbase{border-top:1px solid rgba(255,255,255,.1);padding-top:22px;font-size:13px;color:var(--on-navy-3)}
+.sticky-call{position:fixed;right:20px;bottom:20px;z-index:30;background:var(--gold);color:#16203f;padding:12px 18px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.sticky-call:hover{color:#16203f;background:var(--gold-2)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hbar">
+    <a href="#/" class="logo"><span class="logo-mark">MM</span><span class="logo-text">Master Minds</span></a>
+    <nav class="mainnav" id="mainnav"></nav>
+    <div class="hactions">
+      <a href="#/login" class="btn-login"><span class="lg-full">Student </span>Login</a>
+      <a href="#/contact" class="btn-cta">Talk to our Experts</a>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false">Menu</button>
+    </div>
+  </div>
+  <div class="mega" id="mega">
+    <div class="wrap mega-grid">
+      <div class="mega-col"><span class="eyebrow sm">Study in India</span><div class="mega-links" data-progs="India"></div></div>
+      <div class="mega-col"><span class="eyebrow sm">Study Abroad</span><div class="mega-links" data-progs="Abroad"></div></div>
+      <div class="mega-cta"><span>Not sure which exam fits you?</span><a href="#/contact" class="btn btn-gold" style="align-self:flex-start;padding:10px 16px;font-size:14px">Book free counseling</a></div>
+    </div>
+  </div>
+  <nav class="mobnav" id="mobnav"></nav>
+</header>
+
+<main id="app"></main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="fcol" style="gap:16px">
+        <a href="#/" class="logo"><span class="logo-mark">MM</span><span class="logo-text">Master Minds</span></a>
+        <p style="line-height:1.6">Seamlessly apply to multiple colleges and unlock exclusive benefits on your application fees.</p>
+      </div>
+      <div class="fcol"><span class="t">Study in India</span><div class="fcol" data-progs="India"></div></div>
+      <div class="fcol"><span class="t">Study Abroad</span><div class="fcol" data-progs="Abroad"></div></div>
+      <div class="fcol"><span class="t">Company</span>
+        <a href="#/about">About</a><a href="#/success">Success Stories</a><a href="#/loans">Education Loans</a>
+        <a href="#/branches">Branches</a><a href="#/contact">Contact</a><a href="#/login">Student / Parent Login</a>
+      </div>
+      <div class="fcol"><span class="t">Quick Links</span>
+        <a href="#/refund-policy">Refund Policy</a><a href="#/terms">Terms and Conditions</a><a href="#/privacy">Privacy Policy</a>
+        <a href="tel:8877997887" style="color:#fff;font-weight:600;margin-top:8px">8877997887</a>
+        <a href="mailto:admin@mymasterminds.com">admin@mymasterminds.com</a>
+      </div>
+    </div>
+    <div class="fbase">© <span id="yr">2026</span> Master Minds. All Rights Reserved.</div>
+  </div>
+</footer>
+
+<a href="tel:8877997887" class="sticky-call">📞 Call Us</a>
+<div class="lightbox" id="lightbox"><img alt="Full size image"></div>
+
+<script>
+(function(){
+'use strict';
+const IMG = 'https://mymasterminds.in/uploads/landing/';
+const PHONE = '8877997887', PHONE_FMT = '+91 8877 997 887', EMAIL = 'admin@mymasterminds.com';
+
+const PROGS = [
+  ['MBA','MBA','India','mba'],['LAW','Law','India','law'],['IPM','IPM','India','ipm'],['BBA','BBA','India','bba'],
+  ['CUET','CUET','India','cuet'],['HM','Hotel Management','India','hotel-management'],['GMAT','GMAT','Abroad','gmat'],
+  ['GRE','GRE','Abroad','gre'],['SAT','SAT','Abroad','sat'],['IELTS','IELTS','Abroad','ielts'],
+  ['TOEFL','TOEFL','Abroad','toefl'],['SA','Study Abroad','Abroad','study-abroad']
+].map(p => ({code:p[0], name:p[1], region:p[2], slug:p[3], cat:p[2]==='India'?'Study in India':'Study Abroad', href:p[3]==='study-abroad'?'#/study-abroad':'#/program/'+p[3]}));
+
+const STORIES = {
+  India:[['99.98','CAT Percentile','IIM Ahmedabad','mba'],['99.5','CAT Percentile','IIM Bangalore','mba'],['99.4','CAT Percentile','IIM Calcutta','mba'],['99.0','CAT Percentile','FMS Delhi','mba'],['98.5','XAT Percentile','XLRI Jamshedpur','mba']],
+  Abroad:[['8.5','IELTS Band','Oxford University','ielts'],['335','GRE Score','Harvard University','gre'],['1550','SAT Score','Stanford University','sat'],['118','TOEFL Score','MIT','toefl'],['85','PTE Score','University of Toronto','pte']]
+};
+const TESTI = [
+  ['Aman Gupta','IIM Indore Select','Master Minds helped me crack IPMAT with ease. The mentors are top-notch and the study material is very comprehensive.','ipm'],
+  ['Priya Singh','AIR 45, CLAT 2024','The CLAT preparation here is unparalleled. I got into NLSIU Bangalore thanks to their constant guidance and mock tests.','law'],
+  ['Rohan Verma','Masters at NYU','Studying abroad seemed like a dream until I joined Master Minds. They handled everything from GRE prep to my Visa application perfectly.','gre'],
+  ['Sneha Reddy','SRCC, Delhi University','The personalized feedback and Doubt sessions were game-changers for my CUET preparation. Highly recommended!','cuet']
+];
+const HELP_IN = [{t:'Experienced faculty',d:'Classes led by mentors who know the exam pattern inside out.'},{t:'Mock tests',d:'Regular full-length mocks with detailed performance analysis.'},{t:'Doubt sessions',d:'Personalized feedback and dedicated doubt-clearing sessions.'},{t:'Study material',d:'Comprehensive material and previous year questions.'}];
+const HELP_AB = HELP_IN.slice(0,3).concat([{t:'Admissions & visa',d:'Guidance from shortlisting universities to your visa application.'}]);
+const gen = (name,intro,exams,abroad) => ({name,intro,exams,elig:[],sections:[{title:'How we help you prepare',cards:abroad?HELP_AB:HELP_IN}]});
+const DETAIL = {
+  mba:{name:'MBA',title:'MBA – Complete Guide for Management Aspirants',
+    intro:'A Master of Business Administration (MBA) is one of the most popular postgraduate degrees in the world, designed to develop strong leadership, management, and decision-making skills.',
+    exams:['CAT','XAT','NMAT','SNAP','CMAT','MAH MBA','CET MAT'],
+    elig:['A Bachelor’s degree in any discipline from a recognised university','Minimum 50% marks in graduation (may vary by institute)','Final-year students can also apply'],
+    sections:[
+      {title:'Overview',paras:['An MBA prepares students for managerial and leadership roles in organizations across industries such as finance, consulting, technology, marketing, healthcare, and entrepreneurship.','In India, thousands of students pursue an MBA every year to enhance their career growth, salary potential, and professional opportunities.','At Master Minds, we guide aspirants to prepare for top MBA entrance exams and secure admission into leading business schools.']},
+      {title:'What is an MBA?',paras:['An MBA (Master of Business Administration) is a postgraduate degree focused on business management, leadership, and organizational strategy.','The program equips students with the knowledge and skills needed to manage businesses, analyze markets, lead teams, and make strategic decisions.','MBA programs combine theoretical knowledge with practical business exposure, preparing students for real-world business challenges.']},
+      {title:'Why Pursue an MBA?',paras:['An MBA can significantly transform a professional career by providing:'],cards:[
+        {t:'Career Growth',d:'MBA graduates often move into managerial and leadership roles within organizations.'},
+        {t:'Higher Salary Potential',d:'Companies offer competitive salaries and faster promotions to MBA graduates.'},
+        {t:'Leadership Skills',d:'MBA programs help students develop strategic thinking, communication skills, and leadership abilities.'},
+        {t:'Networking Opportunities',d:'Students get access to alumni networks, industry leaders, and business professionals.'},
+        {t:'Entrepreneurship Opportunities',d:'MBA graduates gain the skills needed to start and manage their own businesses.'}]},
+      {title:'Types of MBA Programs',cards:[
+        {t:'Full-Time MBA',d:'A two-year program designed for students who want to focus completely on management studies.'},
+        {t:'Executive MBA (EMBA)',d:'Designed for working professionals with several years of experience.'},
+        {t:'Part-Time MBA',d:'Allows students to continue working while pursuing an MBA.'},
+        {t:'Online MBA',d:'A flexible option for students who want to study remotely.'},
+        {t:'Distance MBA',d:'Offered by universities through distance learning platforms.'}]},
+      {title:'Popular MBA Specializations',paras:['MBA programs offer various specializations depending on career interests. Some of the most popular MBA specializations include:'],bullets:['Marketing','Finance','Human Resource Management (HR)','Operations Management','Business Analytics','International Business','Information Technology Management','Entrepreneurship','Supply Chain Management']},
+      {title:'MBA Duration in India',paras:['Most MBA programs in India follow a two-year full-time structure. The program is typically divided into four semesters, covering:'],bullets:['Core management subjects','Specialization subjects','Internship programs','Industry projects']},
+      {title:'MBA Admission Process in India',paras:['Admission to MBA programs usually involves multiple stages. Step 1: candidates must appear for national or institute-level entrance exams such as CAT, XAT, NMAT, SNAP, CMAT, MAH MBA and CET MAT.','Students from engineering, commerce, arts, science, and other academic backgrounds are eligible for MBA programs. Some institutes also offer one-year MBA programs for experienced professionals.']}
+    ]},
+  law:{name:'Law',title:'Law Entrance Preparation',
+    intro:'Crack CLAT, AILET & other top Law entrance exams. Get into prestigious National Law Universities with our expert-led coaching program.',
+    stats:[{v:'22+',l:'NLUs'},{v:'90%',l:'Selection'},{v:'5K+',l:'Students'}],
+    exams:['CLAT','AILET','LSAT India','MH CET Law','SLAT','DU LLB'],
+    elig:['10+2 with minimum 45% (for 5-year LLB)','Graduate with 45% (for 3-year LLB)','No upper age limit for CLAT UG','SC/ST relaxation as per norms'],
+    sections:[
+      {title:'Why Choose Our Law Program?',cards:[
+        {t:'Legal Reasoning',d:'In-depth training on legal aptitude, critical reasoning, and case analysis techniques.'},
+        {t:'Current Affairs',d:'Daily updates, monthly digests, and GK capsules curated specifically for law exams.'},
+        {t:'Study Material',d:'Comprehensive study guides, practice papers, and previous year questions from top NLUs.'}]},
+      {title:'Law Specializations',cards:[
+        {t:'Corporate Law',d:'Business & Mergers'},{t:'Criminal Law',d:'Prosecution & Defense'},{t:'International Law',d:'Global Treaties'},{t:'IP Law',d:'Patents & Trademarks'},
+        {t:'Constitutional Law',d:'Fundamental Rights'},{t:'Tax Law',d:'Taxation & Compliance'},{t:'Environmental Law',d:'Sustainability'},{t:'Cyber Law',d:'Digital Rights'}]}
+    ]},
+  ipm:gen('IPM','The Integrated Programme in Management (IPM) is a five-year management programme offered right after Class 12 by IIMs such as IIM Indore and IIM Rohtak.',['IPMAT Indore','IPMAT Rohtak','JIPMAT']),
+  bba:gen('BBA','A Bachelor of Business Administration (BBA) is a three-year undergraduate degree in business and management, open to students after Class 12.',['CUET','NPAT','SET','IPU CET']),
+  cuet:gen('CUET','The Common University Entrance Test (CUET) is the national entrance exam for undergraduate admission to central universities, including Delhi University.',['CUET UG']),
+  'hotel-management':gen('Hotel Management','Hotel Management programmes prepare students for careers in hospitality, culinary arts and hotel operations.',['NCHM JEE']),
+  gmat:gen('GMAT','The GMAT is the admission test used by business schools worldwide for MBA and business master’s programmes.',['GMAT'],true),
+  gre:gen('GRE','The GRE General Test is accepted by graduate schools worldwide for master’s and doctoral programmes, and by many business schools.',['GRE General'],true),
+  sat:gen('SAT','The SAT is a standardised test used for undergraduate admission in the United States and by universities in many other countries.',['SAT'],true),
+  ielts:gen('IELTS','IELTS measures English proficiency for study, work and migration in English-speaking countries.',['IELTS Academic','IELTS General'],true),
+  toefl:gen('TOEFL','TOEFL measures English-language ability for admission to universities, mainly in the US and Canada.',['TOEFL iBT'],true)
+};
+const BRANCHES = [
+  ['Jamshedpur','Opposite Meditek, Contractors Area, Road No - 3, Bistupur, Jamshedpur.',['9204857887','7887517887']],
+  ['Ranchi','2nd Floor, H Square Mall, Opposite Westside, Lalpur, Ranchi',['8877997887','8858867887']],
+  ['Bhilai','119, New Civic Center, Beside Miraj Cinemas, Sector 5, Bhilai.',['7887397887','7887937887']],
+  ['Raipur','G E Road, Opp. Anupam Garden, Beside Westside, Raipur.',['7887637887','7887937887']],
+  ['Bhubaneswar','2nd Floor, Plot No.11, Beside Home Town, In front of Kendriya Vidyalaya 1, Satyanagar, Bhubaneswar',['7887547887']]
+];
+const HEROES = {
+  about:{current:'About',eyebrow:'About us',title:'About Master Minds',sub:'Dedicated to nurturing academic excellence and shaping future-ready individuals.'},
+  programs:{current:'Programs',eyebrow:'Programs',title:'What are you looking for?',sub:'Prepare for MBA, Law, CUET, IPM, BBA and more. Achieve your career goals and fulfill your dreams.'},
+  'study-abroad':{current:'Study Abroad',eyebrow:'Study Abroad',title:'Study Abroad',sub:'Test preparation for GMAT, GRE, SAT, IELTS and TOEFL, with guidance through admissions, visas and education loans.'},
+  success:{current:'Success Stories',eyebrow:'Results',title:'Our Success Stories',sub:'Hear from students who achieved their dreams with us'},
+  loans:{current:'Education Loans',eyebrow:'Education loans',title:'Educational Loans for your Study Abroad Journey Simplified',sub:'Book a Free 30-minute Consultation with Our Study Abroad Experts'},
+  branches:{current:'Branches',eyebrow:'Visit us',title:'Our Branches',sub:'Find us across major cities'},
+  contact:{current:'Contact',eyebrow:'Contact',title:'Talk to our Experts',sub:'Book your free counseling session. Call us or send an inquiry and our experts will get back to you.'},
+  login:{current:'Login',eyebrow:'Portal',title:'Choose Login Type',sub:'Please select your role to proceed:'},
+  'refund-policy':{current:'Refund Policy',eyebrow:'Legal',title:'Refund Policy',sub:'How fees and refunds are handled at Master Minds.'},
+  terms:{current:'Terms and Conditions',eyebrow:'Legal',title:'Terms and Conditions',sub:'The terms that apply when you use our website and enrol in our programs.'},
+  privacy:{current:'Privacy Policy',eyebrow:'Legal',title:'Privacy Policy',sub:'How we collect, use and protect your information.'},
+  '404':{current:'Not found',eyebrow:'404',title:'Page not found',sub:'The page you are looking for does not exist.'}
+};
+const POLICY = {
+  'refund-policy':[['Overview','This is placeholder text for the Master Minds refund policy. Replace it with your institute’s actual policy before going live.'],['Typical points to cover',null,['Eligibility window for refund requests after enrolment','Deductions for registration fees and study material','How to submit a refund request and expected processing time','Programs or offers that are non-refundable']]],
+  terms:[['Overview','This is placeholder text for the Master Minds terms and conditions. Replace it with your institute’s actual terms before going live.'],['Typical points to cover',null,['Enrolment, batch allocation and attendance','Fee payment schedule and late payment','Use of study material and intellectual property','Code of conduct and termination']]],
+  privacy:[['Overview','This is placeholder text for the Master Minds privacy policy. Replace it with your institute’s actual policy before going live.'],['Typical points to cover',null,['What details we collect (name, phone, email, city, course interest)','How we use them to contact you about counseling and courses','Who we share them with, if anyone','How to request access or deletion of your data']]]
+};
+const LOANS = ['Flexible & Competitive Interest rates','Supports all Majors, Degree & Diplomas','Quick approval within 3 working days','Loan Tenure up to 15 years','Personal Advisor for you exclusively for Guidance'];
+const COURSES = ['MBA','LAW','IPMAT','CUET','BBA','Hotel Management','GMAT','GRE','SAT','IELTS','TOEFL','PTE','DUOLINGO','ADMISSION CONSULTING'];
+const GALLERY = ['69c0f2900bebd','69c0f2900c856','69c0f2900d0cb','69c0f2900d987'].map(id => IMG+'gallery_'+id+'.png');
+const NAV = [['Home','#/','home'],['Study Abroad','#/study-abroad','study-abroad'],['Success Stories','#/success','success'],['Branches','#/branches','branches'],['About','#/about','about'],['Contact','#/contact','contact']];
+
+const state = {progTab:'All', storyTab:'India', query:'', role:'Student'};
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = s => document.querySelector(s);
+const app = $('#app');
+
+function parse(){
+  const p = (location.hash||'').replace(/^#\/?/,'').split('/');
+  let page = p[0]||'home', slug = p[1]||'';
+  if (page==='program' && slug==='study-abroad') page='study-abroad';
+  if (page==='program' && !DETAIL[slug]) page='404';
+  const known=['home','about','programs','program','study-abroad','success','loans','branches','contact','login','refund-policy','terms','privacy','404'];
+  if (!known.includes(page)) page='404';
+  return {page, slug};
+}
+
+/* ---------- section renderers ---------- */
+const homeHero = () => `
+<section class="wrap" style="padding-top:28px">
+  <div class="navy-block hero">
+    <div class="hero-copy">
+      <span class="eyebrow on-dark">MBA · Law · CUET · IPM · BBA · Study Abroad</span>
+      <h1>Happy <span class="serif">Studying</span></h1>
+      <p>Prepare for MBA, Law, CUET, IPM, BBA and more. Achieve your career goals and fulfill your dreams.</p>
+      <form class="search" id="searchForm">
+        <input id="searchInput" value="${esc(state.query)}" placeholder="Search a program — MBA, Law, IELTS…" aria-label="Search a program">
+        <button type="submit">Search</button>
+      </form>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="#/contact" class="btn btn-gold">Book free counseling →</a>
+        <a href="#/programs" class="btn btn-ghost">Explore programs</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="sun"></div>
+      <img src="${IMG}banner-girl.png" alt="Master Minds student" onerror="this.style.display='none'">
+      <a href="#/success" class="badge"><strong>99.98</strong><span>CAT percentile<br>IIM Ahmedabad</span></a>
+    </div>
+  </div>
+  <div class="statbar">
+    <div><strong>12</strong><span>Exam &amp; admission programs</span></div>
+    <div><strong>5</strong><span>City branches</span></div>
+    <div><strong>India + Abroad</strong><span>Coaching, admissions &amp; visas</span></div>
+    <div><strong>30 min</strong><span>Free expert consultation</span></div>
+  </div>
+</section>`;
+
+const pageHero = (h, crumbs) => `
+<section class="wrap" style="padding-top:28px">
+  <div class="navy-block phero">
+    <div class="sun"></div>
+    <nav class="crumbs">${crumbs.map(c=>`<a href="${c.href}">${esc(c.label)}</a><span class="sep">/</span>`).join('')}<span>${esc(h.current)}</span></nav>
+    <span class="eyebrow on-dark">${esc(h.eyebrow)}</span>
+    <h1>${esc(h.title)}</h1>
+    ${h.sub?`<p>${esc(h.sub)}</p>`:''}
+    ${h.stats&&h.stats.length?`<div class="phero-stats">${h.stats.map(s=>`<div><strong>${esc(s.v)}</strong><span>${esc(s.l)}</span></div>`).join('')}</div>`:''}
+  </div>
+</section>`;
+
+function programDetail(det){
+  return `
+<section class="wrap sec tight pdetail">
+  <div class="pmain">
+    ${det.sections.map(s=>`
+    <div class="psec">
+      <h2>${esc(s.title)}</h2>
+      ${(s.paras||[]).map(p=>`<p>${esc(p)}</p>`).join('')}
+      ${s.bullets?`<div class="bullets">${s.bullets.map(b=>`<div><span class="dot"></span>${esc(b)}</div>`).join('')}</div>`:''}
+      ${s.cards?`<div class="cards">${s.cards.map(c=>`<div><h3>${esc(c.t)}</h3><p>${esc(c.d)}</p></div>`).join('')}</div>`:''}
+    </div>`).join('')}
+  </div>
+  <aside class="side">
+    <div class="box">
+      <span class="eyebrow sm">Target exams</span>
+      <div class="exams">${det.exams.map(e=>`<span>${esc(e)}</span>`).join('')}</div>
+      ${det.elig.length?`<div class="elig"><span class="eyebrow sm">Eligibility</span>${det.elig.map(e=>`<div><b>✓</b>${esc(e)}</div>`).join('')}</div>`:''}
+    </div>
+    <div class="gold">
+      <strong>Free 30-minute consultation</strong>
+      <p>Talk to a Master Minds expert about your ${esc(det.name)} plan.</p>
+      <button class="btn btn-navy" data-act="counsel" style="align-self:flex-start;padding:12px 18px">Book now →</button>
+    </div>
+  </aside>
+</section>`;
+}
+
+function programs(page){
+  const q = state.query.trim().toLowerCase();
+  let list = PROGS.filter(p => state.progTab==='All' || p.cat===state.progTab);
+  if (page==='study-abroad') list = PROGS.filter(p => p.region==='Abroad' && p.slug!=='study-abroad');
+  const tabs = page==='study-abroad' ? '' : `<div class="tabs">${['All','Study in India','Study Abroad'].map(t=>`<button data-prog-tab="${t}" class="${state.progTab===t?'on':''}">${t}</button>`).join('')}</div>`;
+  return `
+<section class="wrap sec ${page==='home'?'':'tight'}">
+  <div class="row-head">
+    <div class="sec-head" style="margin:0;max-width:620px">
+      <span class="eyebrow">Our programs</span>
+      <h2 class="h2">${page==='study-abroad'?'Study abroad programs':'What are you looking for?'}</h2>
+    </div>${tabs}
+  </div>
+  <div class="pgrid">${list.map(p=>{
+    const hit = q && (p.name.toLowerCase().includes(q)||p.code.toLowerCase().includes(q));
+    return `<a href="${p.href}" class="pcard ${hit?'hit':''}">
+      <div class="top"><span class="tile ${p.region==='India'?'in':'ab'}">${p.code}</span><span class="cat">${p.cat}</span></div>
+      <div class="bot"><h3>${esc(p.name)}</h3><span class="arr">→</span></div></a>`;}).join('')}
+  </div>
+</section>`;
+}
+
+const about = (page) => `
+<section class="wrap sec ${page==='home'?'':'tight'}">
+  <div class="navy-block about">
+    <div class="ph"><img src="${IMG}class.jpg" alt="Classroom at Master Minds" onerror="this.style.display='none'"></div>
+    <div class="tx">
+      <span class="eyebrow on-dark">About Master Minds</span>
+      <h2>Nurturing academic excellence, shaping <span class="serif">future-ready</span> individuals</h2>
+      <p>At Master Minds, we are dedicated to nurturing academic excellence and shaping future-ready individuals. With a strong track record of guiding thousands of students toward their goals, we deliver high-quality coaching for competitive examinations, study abroad pathways, and skill development initiatives.</p>
+      <p>Our learner-centric approach combines experienced faculty, modern infrastructure, and personalized mentorship to ensure every student receives the guidance needed to succeed — academically and professionally.</p>
+      <div class="pillars"><span>Experienced faculty</span><span>Modern infrastructure</span><span>Personalized mentorship</span></div>
+      ${page==='home'?'<a href="#/about" class="btn btn-white" style="align-self:flex-start;padding:13px 22px">Learn More →</a>':''}
+    </div>
+  </div>
+</section>`;
+
+const aboutMore = () => `
+<section class="wrap sec">
+  <div class="sec-head"><span class="eyebrow">What we do</span><h2 class="h2">Three ways we guide students</h2></div>
+  <div class="ways">
+    <a href="#/programs"><span class="mono">01</span><h3>Competitive examinations</h3><p>MBA, Law, IPM, BBA, CUET and Hotel Management entrance preparation.</p></a>
+    <a href="#/study-abroad"><span class="mono">02</span><h3>Study abroad pathways</h3><p>GMAT, GRE, SAT, IELTS and TOEFL preparation, admissions, visas and education loans.</p></a>
+    <a href="#/contact"><span class="mono">03</span><h3>Skill development</h3><p>Personalized mentorship, feedback and doubt sessions alongside every course.</p></a>
+  </div>
+</section>`;
+
+const loop = arr => { if(!arr.length) return []; let a=arr.slice(); while(a.length<6) a=a.concat(arr); return a.concat(a); };
+
+function stories(page, det){
+  let list = STORIES[state.storyTab], tabs = true, title = 'Our Success Stories';
+  if (page==='study-abroad'){ list=STORIES.Abroad; tabs=false; title='Study abroad results'; }
+  if (det){ list=STORIES.India.concat(STORIES.Abroad).filter(s=>s[3]===det.slug); tabs=false; title='Results in '+det.name; }
+  if (!list.length) return '';
+  const items = loop(list);
+  return `
+<section class="stories"><div class="wrap">
+  <div class="row-head" style="margin-bottom:44px">
+    <div class="sec-head" style="margin:0"><span class="eyebrow on-dark">Results</span><h2 class="h2">${esc(title)}</h2></div>
+    ${tabs?`<div class="tabs dark">${[['Study in India','India'],['Study Abroad','Abroad']].map(([l,k])=>`<button data-story-tab="${k}" class="${state.storyTab===k?'on':''}">${l}</button>`).join('')}</div>`:''}
+  </div>
+  <div class="marquee"><div class="track" style="animation-duration:${items.length*3.5}s">
+    ${items.map(s=>`<div class="scard"><div class="img">${esc(s[2].split(' ').map(w=>w[0]).join('').slice(0,3))}</div><div class="b"><span class="score">${s[0]}</span><span class="metric">${esc(s[1])}</span><span class="school">${esc(s[2])}</span></div></div>`).join('')}
+  </div></div>
+  ${(page==='home'||det)?'<a href="#/success" style="display:inline-block;margin-top:32px;color:var(--gold);font-weight:600">See all success stories →</a>':''}
+</div></section>`;
+}
+
+function testimonials(det){
+  const list = det ? TESTI.filter(t=>t[3]===det.slug) : TESTI;
+  if (!list.length) return '';
+  const items = loop(list);
+  return `
+<section class="wrap sec">
+  <div class="sec-head"><span class="eyebrow">Testimonials</span><h2 class="h2">What Our Students Say</h2><p>Hear from students who achieved their dreams with us</p></div>
+  <div class="marquee"><div class="track rtl" style="animation-duration:${items.length*5}s">
+    ${items.map(t=>`<figure class="tcard"><div style="display:flex;flex-direction:column;gap:12px"><span class="q">“</span><blockquote>${esc(t[2])}</blockquote></div>
+      <figcaption><span class="av">${t[0].split(' ').map(x=>x[0]).join('')}</span><span><strong>${esc(t[0])}</strong><small>${esc(t[1])}</small></span></figcaption></figure>`).join('')}
+  </div></div>
+</section>`;
+}
+
+const gallery = () => `
+<section class="wrap sec">
+  <div class="sec-head"><span class="eyebrow">Gallery</span><h2 class="h2">Our Students Around the World</h2><p>Glimpses of our students fulfilling their dreams abroad</p></div>
+  <div class="gallery">${GALLERY.map(src=>`<button data-lightbox="${src}" aria-label="Open photo"><img src="${src}" alt="Master Minds student abroad" loading="lazy" onerror="this.style.display='none'"></button>`).join('')}</div>
+</section>`;
+
+function counsel(page, det){
+  const abroad = ['home','study-abroad','loans'].includes(page) || (det && det.region==='Abroad');
+  const left = abroad ? `
+    <div class="loans">
+      <span class="eyebrow">Education loans</span>
+      <h2>Educational Loans for your Study Abroad Journey Simplified</h2>
+      <div>${LOANS.map((t,i)=>`<div class="li"><span>0${i+1}</span><span>${t}</span></div>`).join('')}</div>
+      ${page!=='loans'?'<a href="#/loans" class="more">About education loans →</a>':''}
+    </div>` : `
+    <div class="contactc">
+      <span class="eyebrow on-dark">Get in touch</span>
+      <h2>We'll help you pick the right exam and plan.</h2>
+      <div>
+        <a href="tel:${PHONE}"><span>Call</span><strong>${PHONE_FMT}</strong></a>
+        <a href="mailto:${EMAIL}"><span>Email</span><strong>${EMAIL}</strong></a>
+        <a href="#/branches"><span>Visit</span><strong>5 branches →</strong></a>
+      </div>
+    </div>`;
+  const preset = det ? (det.slug==='law'?'LAW':det.slug==='ipm'?'IPMAT':det.name) : '';
+  return `
+<section id="counsel" class="wrap sec ${['loans','contact'].includes(page)?'tight':''}">
+  <div class="counsel">
+    ${left}
+    <div class="formc">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <h3>Book Your Free Counseling Session</h3>
+        <p>Book a <strong>Free 30-minute Consultation</strong> with Our Experts</p>
+      </div>
+      <div id="formSlot">
+        <form class="form" id="inquiry">
+          <label>Name *<input required name="name" autocomplete="name"></label>
+          <label>Contact No *<input required type="tel" name="phone" autocomplete="tel" pattern="[0-9+ -]{10,15}" title="Enter a valid phone number"></label>
+          <label>Email *<input required type="email" name="email" autocomplete="email"></label>
+          <label>City *<input required name="city" autocomplete="address-level2"></label>
+          <label class="full">Course Interested *
+            <select required name="course"><option value="">Select Course</option>${COURSES.map(c=>`<option ${c===preset?'selected':''}>${c}</option>`).join('')}</select>
+          </label>
+          <button type="submit" class="btn btn-navy full" style="padding:16px;font-size:16px;margin-top:6px">Submit Inquiry</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>`;
+}
+
+const branches = (page) => `
+<section class="wrap sec ${page==='branches'?'tight':''}">
+  ${page!=='branches'?'<div class="sec-head"><span class="eyebrow">Visit us</span><h2 class="h2">Our Branches</h2><p>Find us across major cities</p></div>':''}
+  <div class="bgrid">${BRANCHES.map(b=>`
+    <div class="bcard"><h3>${b[0]}</h3><p>${esc(b[1])}</p>
+      <div class="ph">${b[2].map(ph=>`<a href="tel:${ph}">${ph}</a>`).join('')}</div>
+      <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Master Minds '+b[1])}" target="_blank" rel="noopener" style="font-size:14px;font-weight:600;color:var(--gold-ink)">Get directions →</a>
+    </div>`).join('')}
+  </div>
+</section>`;
+
+const login = () => `
+<section class="login"><div class="card">
+  <div class="tabs">${['Student','Parent'].map(r=>`<button data-role="${r}" class="${state.role===r?'on':''}">${r} Login</button>`).join('')}</div>
+  <div id="loginSlot">
+    <form class="login-form" id="loginForm">
+      <label>Email or mobile number<input required autocomplete="username"></label>
+      <label>Password<input required type="password" autocomplete="current-password"></label>
+      <button type="submit" class="btn btn-navy" style="padding:15px;font-size:16px;margin-top:6px">Sign in as ${state.role}</button>
+      <p>New to Master Minds? <a href="#/contact" style="font-weight:600">Talk to our experts</a></p>
+    </form>
+  </div>
+</div></section>`;
+
+const policy = (page) => `
+<section class="policy">
+  ${POLICY[page].map(([h,p,list])=>`<h2>${h}</h2>${p?`<p>${p}</p>`:''}${list?`<ul>${list.map(i=>`<li>${i}</li>`).join('')}</ul>`:''}`).join('')}
+  <p>Questions about this policy? Write to <a href="mailto:${EMAIL}" style="font-weight:600">${EMAIL}</a> or call <a href="tel:${PHONE}" style="font-weight:600">${PHONE}</a>.</p>
+  <div class="pills"><a href="#/refund-policy">Refund Policy</a><a href="#/terms">Terms and Conditions</a><a href="#/privacy">Privacy Policy</a></div>
+</section>`;
+
+const cta = () => `
+<section class="wrap sec">
+  <div class="navy-block cta">
+    <div><h2>Ready to start? <span class="serif">Talk to our experts.</span></h2>
+      <p>Seamlessly apply to multiple colleges and unlock exclusive benefits on your application fees.</p></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="tel:${PHONE}" class="btn btn-gold">Call ${PHONE}</a>
+      <a href="#/contact" class="btn btn-ghost">Send an inquiry</a>
+    </div>
+  </div>
+</section>`;
+
+/* ---------- page composition ---------- */
+function render(){
+  const {page, slug} = parse();
+  const is = (...p) => p.includes(page);
+  const det = page==='program' ? Object.assign({slug, region:PROGS.find(p=>p.slug===slug).region}, DETAIL[slug]) : null;
+  let html = '';
+
+  if (is('home')) html += homeHero();
+  else {
+    let h = HEROES[page], crumbs=[{label:'Home',href:'#/'}];
+    if (det){ h={current:det.name, eyebrow:det.region==='India'?'Study in India':'Study Abroad', title:det.title||det.name+' Preparation', sub:det.intro, stats:det.stats}; crumbs.push({label:'Programs',href:'#/programs'}); }
+    html += pageHero(h, crumbs);
+  }
+  if (det) html += programDetail(det);
+  if (is('home','programs','study-abroad')) html += programs(page);
+  if (is('home','about')) html += about(page);
+  if (is('about')) html += aboutMore();
+  if (is('home','success','study-abroad') || det) html += stories(page, det);
+  if (is('home','success') || det) html += testimonials(det);
+  if (is('home','success','about','study-abroad')) html += gallery();
+  if (is('home','program','study-abroad','loans','contact','programs')) html += counsel(page, det);
+  if (is('home','about','branches','contact')) html += branches(page);
+  if (is('login')) html += login();
+  if (is('refund-policy','terms','privacy')) html += policy(page);
+  if (is('404')) html += '<section class="wrap" style="padding-top:64px"><a href="#/" class="btn btn-navy">Back to home</a></section>';
+  if (!is('contact','login','404','refund-policy','terms','privacy')) html += cta();
+
+  app.innerHTML = html;
+  document.title = (page==='home' ? 'Master Minds — Happy Studying' : (det ? det.name : HEROES[page].current) + ' · Master Minds');
+
+  // nav state
+  $('#mainnav').innerHTML = NAV.map(n=>`<a href="${n[1]}" class="${page===n[2]?'active':''}">${n[0]}</a>`).join('') +
+    `<button id="megaBtn" class="${is('programs','program')?'active':''}" aria-expanded="false">Programs ▾</button>`;
+  $('#megaBtn').onclick = () => { const m=$('#mega'); m.classList.toggle('open'); $('#megaBtn').setAttribute('aria-expanded', m.classList.contains('open')); };
+}
+
+function renderStatic(){
+  document.querySelectorAll('[data-progs]').forEach(el => {
+    el.innerHTML = PROGS.filter(p=>p.region===el.dataset.progs).map(p=>`<a href="${p.href}">${p.name}</a>`).join('');
+  });
+  $('#mobnav').innerHTML = NAV.map(n=>`<a href="${n[1]}">${n[0]}</a>`).join('') +
+    '<span class="eyebrow sm" style="padding:16px 0 6px">Programs</span><div class="grid2">' +
+    PROGS.map(p=>`<a href="${p.href}">${p.name}</a>`).join('') + '</div><a href="#/contact" style="padding:14px 0 0;font-weight:600;border:0">Talk to our Experts</a>';
+  $('#yr').textContent = new Date().getFullYear();
+}
+
+function closeMenus(){
+  $('#mega').classList.remove('open'); $('#mobnav').classList.remove('open');
+  $('#menuBtn').textContent='Menu'; $('#menuBtn').setAttribute('aria-expanded','false');
+}
+
+/* ---------- events ---------- */
+$('#menuBtn').onclick = () => {
+  const open = $('#mobnav').classList.toggle('open');
+  $('#menuBtn').textContent = open ? 'Close' : 'Menu';
+  $('#menuBtn').setAttribute('aria-expanded', open);
+};
+$('#mobnav').addEventListener('click', e => { if (e.target.closest('a')) closeMenus(); });
+$('#mega').addEventListener('click', e => { if (e.target.closest('a')) closeMenus(); });
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-prog-tab],[data-story-tab],[data-role],[data-lightbox],[data-act]');
+  if (!t) return;
+  if (t.dataset.progTab){ state.progTab=t.dataset.progTab; keepScroll(render); }
+  else if (t.dataset.storyTab){ state.storyTab=t.dataset.storyTab; keepScroll(render); }
+  else if (t.dataset.role){ state.role=t.dataset.role; render(); }
+  else if (t.dataset.lightbox){ const lb=$('#lightbox'); lb.querySelector('img').src=t.dataset.lightbox; lb.classList.add('open'); }
+  else if (t.dataset.act==='reset'){ keepScroll(render); }
+  else if (t.dataset.act==='counsel'){ document.getElementById('counsel').scrollIntoView({behavior:'smooth'}); }
+});
+$('#lightbox').onclick = () => $('#lightbox').classList.remove('open');
+document.addEventListener('keydown', e => { if (e.key==='Escape'){ $('#lightbox').classList.remove('open'); closeMenus(); } });
+
+document.addEventListener('input', e => {
+  if (e.target.id==='searchInput') state.query = e.target.value;
+});
+document.addEventListener('submit', e => {
+  const f = e.target;
+  if (f.id==='searchForm'){
+    e.preventDefault();
+    const q = state.query.trim().toLowerCase();
+    const m = q && PROGS.find(p => p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q));
+    state.progTab='All';
+    location.hash = m ? m.href : '#/programs';
+  } else if (f.id==='inquiry'){
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(f));
+    // TODO: connect to your backend / Google Form / email service here. Example:
+    // fetch('/api/inquiry', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)});
+    const first = esc(String(data.name).trim().split(' ')[0]);
+    $('#formSlot').innerHTML = `<div class="done"><span class="check">✓</span><h4>Thanks, ${first}.</h4>
+      <p>Our expert will call you shortly about ${esc(data.course)}. You can also reach us on ${PHONE_FMT}.</p>
+      <button class="btn btn-outline" style="align-self:flex-start" data-act="reset">Send another inquiry</button></div>`;
+  } else if (f.id==='loginForm'){
+    e.preventDefault();
+    $('#loginSlot').innerHTML = `<div class="done" style="padding:20px 0"><span class="check">✓</span><h3 style="font-size:24px;color:var(--head)">Signed in to the ${state.role} portal</h3>
+      <p>Your dashboard will appear here.</p><button class="btn btn-outline" style="align-self:flex-start" data-role="${state.role}">Sign out</button></div>`;
+  }
+});
+
+function keepScroll(fn){ const y = scrollY; fn(); scrollTo(0, y); }
+
+window.addEventListener('hashchange', () => {
+  if (location.hash && !location.hash.startsWith('#/')) return;
+  closeMenus(); render(); scrollTo(0,0);
+});
+
+renderStatic();
+render();
+})();
+</script>
+</body>
+</html>
