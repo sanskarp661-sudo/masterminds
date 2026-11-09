@@ -140,25 +140,49 @@ header{position:sticky;top:0;z-index:20;background:var(--header-bg);backdrop-fil
 .tabs.dark button{color:var(--on-navy-2)}
 .tabs.dark button.on{background:var(--gold);color:#16203f}
 
-/* Programs */
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:16px}
-.pcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:22px;color:var(--ink);transition:transform .2s,box-shadow .2s,border-color .2s}
+/* Programs (bento) */
+.bentos{display:flex;flex-direction:column;gap:20px}
+.bento{display:grid;gap:14px}
+.bento.feat-right{grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.5fr)}
+.bento.feat-left{grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr))}
+.bento.solo{grid-template-columns:repeat(3,minmax(0,1fr))}
+.bento.feat-right .feature{grid-column:4;grid-row:1/3}
+.bento.feat-left .feature{grid-column:1;grid-row:1/3}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;color:var(--ink);min-width:0;transition:transform .2s,box-shadow .2s,border-color .2s}
 .pcard:hover{border-color:var(--head);transform:translateY(-3px);box-shadow:var(--shadow);color:var(--ink)}
 .pcard.hit{outline:2px solid var(--gold)}
-.pcard .top{display:flex;justify-content:space-between;align-items:flex-start}
-.tile{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;transition:transform .2s}
-.tile svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pcard .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.tile{width:40px;height:40px;border-radius:10px;background:#16203f;color:#f2b33d;display:grid;place-items:center;transition:transform .2s}
+.tile svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .pcard:hover .tile{transform:rotate(-6deg) scale(1.06)}
-.tile{background:#16203f;color:#f2b33d}
-.cat{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.cat.in{color:#1f6b45;background:#e3f2e9}
-.cat.ab{color:#9a5b00;background:#fdf0d5}
-.cat svg{width:13px;height:13px;fill:currentColor}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cat.in{color:#7fd4a6;background:rgba(127,212,166,.12)}:root:not([data-theme="light"]) .cat.ab{color:#f2b33d;background:rgba(242,179,61,.14)}}
-:root[data-theme="dark"] .cat.in{color:#7fd4a6;background:rgba(127,212,166,.12)}:root[data-theme="dark"] .cat.ab{color:#f2b33d;background:rgba(242,179,61,.14)}
-.pcard .bot{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.pcard h3{font-size:21px;letter-spacing:-.01em;color:var(--head)}
-.pcard .arr{font-size:20px;color:var(--gold-ink)}
+.ur{width:18px;height:18px;fill:none;stroke:var(--gold-ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.pcard:hover .ur{transform:translate(2px,-2px)}
+.pcard h3{font-size:20px;letter-spacing:-.01em;color:var(--head)}
+.pcard p{font-size:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feature{position:relative;overflow:hidden;border-radius:22px;color:#fff;padding:22px 24px 24px;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:278px;isolation:isolate}
+.f-in{background:linear-gradient(160deg,#2a3a6e,#16203f 70%)}
+.f-ab{background:linear-gradient(200deg,#3a2f5e,#16203f 70%)}
+.feature img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.feature::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(22,32,63,.55),rgba(22,32,63,.82) 60%,rgba(22,32,63,.95))}
+.feature .sky{position:absolute;left:0;right:0;bottom:0;width:100%;height:60%;z-index:-3;fill:rgba(255,255,255,.07)}
+.f-top{display:flex;justify-content:space-between;align-items:center}
+.f-ic{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);backdrop-filter:blur(6px);display:grid;place-items:center;color:var(--gold)}
+.f-ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f-count{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--gold)}
+.f-body{display:flex;flex-direction:column;gap:10px}
+.f-body h3{font-size:clamp(28px,2.6vw,34px);letter-spacing:-.02em}
+.f-body p{font-size:16px;line-height:1.5;color:#dfe2ee;max-width:420px}
+.f-btn{align-self:flex-start;margin-top:8px;border:0;cursor:pointer;background:var(--gold);color:#16203f;padding:10px 18px;border-radius:999px;font-weight:600;font-size:15px;display:inline-flex;gap:8px;align-items:center;transition:background .2s}
+.f-btn:hover{background:var(--gold-2);color:#16203f}
+.f-btn span{transition:transform .2s}.f-btn:hover span{transform:translateX(3px)}
+@media (max-width:1100px){
+  .bento.feat-right,.bento.feat-left,.bento.solo{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bento.feat-right .feature,.bento.feat-left .feature{grid-column:1/-1;grid-row:1;min-height:240px}
+}
+@media (max-width:620px){
+  .bento.feat-right,.bento.feat-left,.bento.solo{grid-template-columns:minmax(0,1fr)}
+  .pcard p{white-space:normal}
+}
 
 /* Program detail */
 .pdetail{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:48px;align-items:start}
@@ -378,7 +402,6 @@ const ICONS = {
   toefl:'<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>',
   'study-abroad':'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>'
 };
-const PLANE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>';
 const icon = slug => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[slug]||''}</svg>`;
 
 const STORIES = {
@@ -558,10 +581,47 @@ function programDetail(det){
 </section>`;
 }
 
-function programs(page){
+const DESC = {
+  mba:'CAT, XAT and SNAP prep for top B-schools', law:'CLAT and AILET prep for National Law Universities',
+  ipm:'IPMAT prep for the IIMs’ five-year management programme', bba:'Entrance prep for leading undergraduate business schools',
+  cuet:'Central university admissions, every domain covered', 'hotel-management':'NCHM JEE prep for top hospitality institutes',
+  gmat:'Focus Edition prep for global business schools', gre:'Quant and verbal prep for master’s programmes abroad',
+  sat:'Digital SAT prep for US undergraduate admissions', ielts:'Band-focused training across all four modules',
+  toefl:'iBT prep for reading, listening, speaking and writing', 'study-abroad':'Shortlisting, applications and visa guidance'
+};
+const PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>';
+const PLANE_LINE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>';
+const ARROW_UR = '<svg class="ur" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+const SKY_IN = '<svg class="sky" viewBox="0 0 400 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 160V128h40v-18h10v18h30v-40l6-10 6 10v40h20v-30h8v-8h4v8h8v30h24v-22c0-26 18-40 44-52 26 12 44 26 44 52v22h24v-30h8v-8h4v8h8v30h20v-40l6-10 6 10v40h30v-18h10v18h40v32z"/><path d="M200 36v-14"/></svg>';
+const SKY_AB = '<svg class="sky" viewBox="0 0 400 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 160v-30h30v-50h22v50h18V60l14-24 14 24v70h20v-40h26v40h16V40h8V20h6v20h8v90h20v-60h30v60h18v-34l16-12 16 12v34h22v-50h20v50h32v30z"/></svg>';
+const PHOTO = {India:'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1000&q=70', Abroad:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1000&q=70'};
+
+function progGroup(region, showFeature){
   const q = state.query.trim().toLowerCase();
-  let list = PROGS.filter(p => state.progTab==='All' || p.cat===state.progTab);
-  if (page==='study-abroad') list = PROGS.filter(p => p.region==='Abroad' && p.slug!=='study-abroad');
+  const list = PROGS.filter(p => p.region===region);
+  const cards = list.map(p => {
+    const hit = q && (p.name.toLowerCase().includes(q)||p.code.toLowerCase().includes(q));
+    return `<a href="${p.href}" class="pcard ${hit?'hit':''}">
+      <div class="top"><span class="tile">${icon(p.slug)}</span>${ARROW_UR}</div>
+      <h3>${esc(p.name)}</h3><p>${esc(DESC[p.slug]||'')}</p></a>`;}).join('');
+  if (!showFeature) return `<div class="bento solo">${cards}</div>`;
+  const india = region==='India';
+  const feature = `<div class="feature ${india?'f-in':'f-ab'}">
+    <img src="${PHOTO[region]}" alt="" loading="lazy" onerror="this.remove()">${india?SKY_IN:SKY_AB}
+    <div class="f-top"><span class="f-ic">${india?PIN:PLANE_LINE}</span><span class="f-count">${list.length} programs</span></div>
+    <div class="f-body"><h3>${india?'Study in India':'Study Abroad'}</h3>
+      <p>${india?'Entrance prep for India’s top universities, B-schools and institutes.':'Test prep and admissions guidance for universities worldwide.'}</p>
+      ${india?`<button class="f-btn" data-prog-tab="Study in India">Explore all <span>→</span></button>`:`<a class="f-btn" href="#/study-abroad">Explore all <span>→</span></a>`}
+    </div></div>`;
+  return `<div class="bento ${india?'feat-right':'feat-left'}">${india?cards+feature:feature+cards}</div>`;
+}
+
+function programs(page){
+  let body;
+  if (page==='study-abroad') body = progGroup('Abroad', false);
+  else if (state.progTab==='Study in India') body = progGroup('India', false);
+  else if (state.progTab==='Study Abroad') body = progGroup('Abroad', false);
+  else body = progGroup('India', true) + progGroup('Abroad', true);
   const tabs = page==='study-abroad' ? '' : `<div class="tabs">${['All','Study in India','Study Abroad'].map(t=>`<button data-prog-tab="${t}" class="${state.progTab===t?'on':''}">${t}</button>`).join('')}</div>`;
   return `
 <section class="wrap sec ${page==='home'?'':'tight'}">
@@ -571,12 +631,7 @@ function programs(page){
       <h2 class="h2">${page==='study-abroad'?'Study abroad programs':'What are you looking for?'}</h2>
     </div>${tabs}
   </div>
-  <div class="pgrid">${list.map(p=>{
-    const hit = q && (p.name.toLowerCase().includes(q)||p.code.toLowerCase().includes(q));
-    return `<a href="${p.href}" class="pcard ${hit?'hit':''}">
-      <div class="top"><span class="tile">${icon(p.slug)}</span><span class="cat ${p.region==='India'?'in':'ab'}">${p.region==='Abroad'?PLANE:''}${p.cat}</span></div>
-      <div class="bot"><h3>${esc(p.name)}</h3><span class="arr">→</span></div></a>`;}).join('')}
-  </div>
+  <div class="bentos">${body}</div>
 </section>`;
 }
 
