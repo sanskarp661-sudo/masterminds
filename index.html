@@ -251,6 +251,12 @@ aside.side{position:sticky;top:96px;display:flex;flex-direction:column;gap:16px}
 .tcard small{font-size:13px;color:var(--gold-ink);font-weight:600}
 
 /* Gallery */
+.gallery button{position:relative}
+.gcap{position:absolute;left:10px;right:10px;bottom:10px;background:rgba(15,23,48,.75);color:#fff;font-size:13px;font-weight:600;padding:6px 10px;border-radius:10px;text-align:left}
+.scard .img{overflow:hidden}.scard .img img{width:100%;height:100%;object-fit:cover;display:block}
+.av{overflow:hidden}.av img{width:100%;height:100%;object-fit:cover}
+.form-err{color:#b42318;background:#fdecea;border-radius:10px;padding:10px 12px;font-size:14px}
+.form-err a{color:#b42318;font-weight:700;text-decoration:underline}
 .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
 .gallery button{border:0;padding:0;cursor:zoom-in;border-radius:20px;overflow:hidden;aspect-ratio:4/5;background:var(--line)}
 .gallery button:hover{opacity:.9}
@@ -354,7 +360,7 @@ footer .logo-text{color:#fff}
     <div class="fgrid">
       <div class="fcol" style="gap:16px">
         <a href="#/" class="logo"><span class="logo-mark">MM</span><span class="logo-text">Master Minds</span></a>
-        <p style="line-height:1.6">Seamlessly apply to multiple colleges and unlock exclusive benefits on your application fees.</p>
+        <p style="line-height:1.6" id="fText">Seamlessly apply to multiple colleges and unlock exclusive benefits on your application fees.</p>
       </div>
       <div class="fcol"><span class="t">Study in India</span><div class="fcol" data-progs="India"></div></div>
       <div class="fcol"><span class="t">Study Abroad</span><div class="fcol" data-progs="Abroad"></div></div>
@@ -364,22 +370,37 @@ footer .logo-text{color:#fff}
       </div>
       <div class="fcol"><span class="t">Quick Links</span>
         <a href="#/refund-policy">Refund Policy</a><a href="#/terms">Terms and Conditions</a><a href="#/privacy">Privacy Policy</a>
-        <a href="tel:8877997887" style="color:#fff;font-weight:600;margin-top:8px">8877997887</a>
-        <a href="mailto:admin@mymasterminds.com">admin@mymasterminds.com</a>
+        <a href="tel:8877997887" id="fPhone" style="color:#fff;font-weight:600;margin-top:8px">8877997887</a>
+        <a href="mailto:admin@mymasterminds.com" id="fEmail">admin@mymasterminds.com</a>
       </div>
     </div>
     <div class="fbase">© <span id="yr">2026</span> Master Minds. All Rights Reserved.</div>
   </div>
 </footer>
 
-<a href="tel:8877997887" class="sticky-call">📞 Call Us</a>
+<a href="tel:8877997887" class="sticky-call" id="stickyCall">📞 Call Us</a>
 <div class="lightbox" id="lightbox"><img alt="Full size image"></div>
 
+<script src="config.js"></script>
 <script>
 (function(){
 'use strict';
 const IMG = 'https://mymasterminds.in/uploads/landing/';
-const PHONE = '8877997887', PHONE_FMT = '+91 8877 997 887', EMAIL = 'admin@mymasterminds.com';
+const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
+const SITE = {
+  phone:'8877997887', phone_fmt:'+91 8877 997 887', email:'admin@mymasterminds.com',
+  hero_eyebrow:'MBA · Law · CUET · IPM · BBA · Study Abroad', hero_title:'Happy *Studying*',
+  hero_sub:'Prepare for MBA, Law, CUET, IPM, BBA and more. Achieve your career goals and fulfill your dreams.',
+  hero_image:IMG+'banner-girl.png', badge_score:'99.98', badge_text:'CAT percentile\nIIM Ahmedabad',
+  stats:[{v:'12',l:'Exam & admission programs'},{v:'5',l:'City branches'},{v:'India + Abroad',l:'Coaching, admissions & visas'},{v:'30 min',l:'Free expert consultation'}],
+  about_title:'Nurturing academic excellence, shaping *future-ready* individuals',
+  about_p1:'At Master Minds, we are dedicated to nurturing academic excellence and shaping future-ready individuals. With a strong track record of guiding thousands of students toward their goals, we deliver high-quality coaching for competitive examinations, study abroad pathways, and skill development initiatives.',
+  about_p2:'Our learner-centric approach combines experienced faculty, modern infrastructure, and personalized mentorship to ensure every student receives the guidance needed to succeed — academically and professionally.',
+  about_image:IMG+'class.jpg',
+  cta_title:'Ready to start? *Talk to our experts.*',
+  cta_text:'Seamlessly apply to multiple colleges and unlock exclusive benefits on your application fees.',
+  footer_text:'Seamlessly apply to multiple colleges and unlock exclusive benefits on your application fees.'
+};
 
 const PROGS = [
   ['MBA','MBA','India','mba'],['LAW','Law','India','law'],['IPM','IPM','India','ipm'],['BBA','BBA','India','bba'],
@@ -404,16 +425,16 @@ const ICONS = {
 };
 const icon = slug => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[slug]||''}</svg>`;
 
-const STORIES = {
-  India:[['99.98','CAT Percentile','IIM Ahmedabad','mba'],['99.5','CAT Percentile','IIM Bangalore','mba'],['99.4','CAT Percentile','IIM Calcutta','mba'],['99.0','CAT Percentile','FMS Delhi','mba'],['98.5','XAT Percentile','XLRI Jamshedpur','mba']],
-  Abroad:[['8.5','IELTS Band','Oxford University','ielts'],['335','GRE Score','Harvard University','gre'],['1550','SAT Score','Stanford University','sat'],['118','TOEFL Score','MIT','toefl'],['85','PTE Score','University of Toronto','pte']]
-};
-const TESTI = [
+let RESULTS = [
+  ['99.98','CAT Percentile','IIM Ahmedabad','India','mba'],['99.5','CAT Percentile','IIM Bangalore','India','mba'],['99.4','CAT Percentile','IIM Calcutta','India','mba'],['99.0','CAT Percentile','FMS Delhi','India','mba'],['98.5','XAT Percentile','XLRI Jamshedpur','India','mba'],
+  ['8.5','IELTS Band','Oxford University','Abroad','ielts'],['335','GRE Score','Harvard University','Abroad','gre'],['1550','SAT Score','Stanford University','Abroad','sat'],['118','TOEFL Score','MIT','Abroad','toefl'],['85','PTE Score','University of Toronto','Abroad','pte']
+].map(r => ({score:r[0], metric:r[1], school:r[2], region:r[3], program:r[4]}));
+let TESTI = [
   ['Aman Gupta','IIM Indore Select','Master Minds helped me crack IPMAT with ease. The mentors are top-notch and the study material is very comprehensive.','ipm'],
   ['Priya Singh','AIR 45, CLAT 2024','The CLAT preparation here is unparalleled. I got into NLSIU Bangalore thanks to their constant guidance and mock tests.','law'],
   ['Rohan Verma','Masters at NYU','Studying abroad seemed like a dream until I joined Master Minds. They handled everything from GRE prep to my Visa application perfectly.','gre'],
   ['Sneha Reddy','SRCC, Delhi University','The personalized feedback and Doubt sessions were game-changers for my CUET preparation. Highly recommended!','cuet']
-];
+].map(t => ({name:t[0], result:t[1], quote:t[2], program:t[3]}));
 const HELP_IN = [{t:'Experienced faculty',d:'Classes led by mentors who know the exam pattern inside out.'},{t:'Mock tests',d:'Regular full-length mocks with detailed performance analysis.'},{t:'Doubt sessions',d:'Personalized feedback and dedicated doubt-clearing sessions.'},{t:'Study material',d:'Comprehensive material and previous year questions.'}];
 const HELP_AB = HELP_IN.slice(0,3).concat([{t:'Admissions & visa',d:'Guidance from shortlisting universities to your visa application.'}]);
 const gen = (name,intro,exams,abroad) => ({name,intro,exams,elig:[],sections:[{title:'How we help you prepare',cards:abroad?HELP_AB:HELP_IN}]});
@@ -465,13 +486,13 @@ const DETAIL = {
   ielts:gen('IELTS','IELTS measures English proficiency for study, work and migration in English-speaking countries.',['IELTS Academic','IELTS General'],true),
   toefl:gen('TOEFL','TOEFL measures English-language ability for admission to universities, mainly in the US and Canada.',['TOEFL iBT'],true)
 };
-const BRANCHES = [
+let BRANCHES = [
   ['Jamshedpur','Opposite Meditek, Contractors Area, Road No - 3, Bistupur, Jamshedpur.',['9204857887','7887517887']],
   ['Ranchi','2nd Floor, H Square Mall, Opposite Westside, Lalpur, Ranchi',['8877997887','8858867887']],
   ['Bhilai','119, New Civic Center, Beside Miraj Cinemas, Sector 5, Bhilai.',['7887397887','7887937887']],
   ['Raipur','G E Road, Opp. Anupam Garden, Beside Westside, Raipur.',['7887637887','7887937887']],
   ['Bhubaneswar','2nd Floor, Plot No.11, Beside Home Town, In front of Kendriya Vidyalaya 1, Satyanagar, Bhubaneswar',['7887547887']]
-];
+].map(b => ({city:b[0], address:b[1], phones:b[2]}));
 const HEROES = {
   about:{current:'About',eyebrow:'About us',title:'About Master Minds',sub:'Dedicated to nurturing academic excellence and shaping future-ready individuals.'},
   programs:{current:'Programs',eyebrow:'Programs',title:'What are you looking for?',sub:'Prepare for MBA, Law, CUET, IPM, BBA and more. Achieve your career goals and fulfill your dreams.'},
@@ -491,14 +512,17 @@ const POLICY = {
   terms:[['Overview','This is placeholder text for the Master Minds terms and conditions. Replace it with your institute’s actual terms before going live.'],['Typical points to cover',null,['Enrolment, batch allocation and attendance','Fee payment schedule and late payment','Use of study material and intellectual property','Code of conduct and termination']]],
   privacy:[['Overview','This is placeholder text for the Master Minds privacy policy. Replace it with your institute’s actual policy before going live.'],['Typical points to cover',null,['What details we collect (name, phone, email, city, course interest)','How we use them to contact you about counseling and courses','Who we share them with, if anyone','How to request access or deletion of your data']]]
 };
-const LOANS = ['Flexible & Competitive Interest rates','Supports all Majors, Degree & Diplomas','Quick approval within 3 working days','Loan Tenure up to 15 years','Personal Advisor for you exclusively for Guidance'];
+let LOANS = ['Flexible & Competitive Interest rates','Supports all Majors, Degree & Diplomas','Quick approval within 3 working days','Loan Tenure up to 15 years','Personal Advisor for you exclusively for Guidance'];
 const COURSES = ['MBA','LAW','IPMAT','CUET','BBA','Hotel Management','GMAT','GRE','SAT','IELTS','TOEFL','PTE','DUOLINGO','ADMISSION CONSULTING'];
-const GALLERY = ['69c0f2900bebd','69c0f2900c856','69c0f2900d0cb','69c0f2900d987'].map(id => IMG+'gallery_'+id+'.png');
+let GALLERY = ['69c0f2900bebd','69c0f2900c856','69c0f2900d0cb','69c0f2900d987'].map(id => ({url:IMG+'gallery_'+id+'.png', caption:''}));
 const NAV = [['Home','#/','home'],['Study Abroad','#/study-abroad','study-abroad'],['Success Stories','#/success','success'],['Branches','#/branches','branches'],['About','#/about','about'],['Contact','#/contact','contact']];
 
 const state = {progTab:'All', storyTab:'India', query:'', role:'Student'};
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $ = s => document.querySelector(s);
+const url = u => /^https?:\/\//i.test(String(u||'').trim()) ? esc(String(u).trim()) : '';
+const accent = t => esc(t).replace(/\*(.+?)\*/g, '<span class="serif">$1</span>');
+const initials = n => esc(String(n||'').split(/\s+/).filter(Boolean).map(w=>w[0]).join('').slice(0,3).toUpperCase());
 const app = $('#app');
 
 function parse(){
@@ -516,9 +540,9 @@ const homeHero = () => `
 <section class="wrap" style="padding-top:28px">
   <div class="navy-block hero">
     <div class="hero-copy">
-      <span class="eyebrow on-dark">MBA · Law · CUET · IPM · BBA · Study Abroad</span>
-      <h1>Happy <span class="serif">Studying</span></h1>
-      <p>Prepare for MBA, Law, CUET, IPM, BBA and more. Achieve your career goals and fulfill your dreams.</p>
+      <span class="eyebrow on-dark">${esc(SITE.hero_eyebrow)}</span>
+      <h1>${accent(SITE.hero_title)}</h1>
+      <p>${esc(SITE.hero_sub)}</p>
       <form class="search" id="searchForm">
         <input id="searchInput" value="${esc(state.query)}" placeholder="Search a program — MBA, Law, IELTS…" aria-label="Search a program">
         <button type="submit">Search</button>
@@ -530,15 +554,12 @@ const homeHero = () => `
     </div>
     <div class="hero-art">
       <div class="sun"></div>
-      <img src="${IMG}banner-girl.png" alt="Master Minds student" onerror="this.style.display='none'">
-      <a href="#/success" class="badge"><strong>99.98</strong><span>CAT percentile<br>IIM Ahmedabad</span></a>
+      ${url(SITE.hero_image)?`<img src="${url(SITE.hero_image)}" alt="Master Minds student" onerror="this.style.display='none'">`:''}
+      ${SITE.badge_score?`<a href="#/success" class="badge"><strong>${esc(SITE.badge_score)}</strong><span>${esc(SITE.badge_text).replace(/\n/g,'<br>')}</span></a>`:''}
     </div>
   </div>
   <div class="statbar">
-    <div><strong>12</strong><span>Exam &amp; admission programs</span></div>
-    <div><strong>5</strong><span>City branches</span></div>
-    <div><strong>India + Abroad</strong><span>Coaching, admissions &amp; visas</span></div>
-    <div><strong>30 min</strong><span>Free expert consultation</span></div>
+    ${(SITE.stats||[]).filter(x=>x&&x.v).map(x=>`<div><strong>${esc(x.v)}</strong><span>${esc(x.l)}</span></div>`).join('')}
   </div>
 </section>`;
 
@@ -638,12 +659,12 @@ function programs(page){
 const about = (page) => `
 <section class="wrap sec ${page==='home'?'':'tight'}">
   <div class="navy-block about">
-    <div class="ph"><img src="${IMG}class.jpg" alt="Classroom at Master Minds" onerror="this.style.display='none'"></div>
+    <div class="ph">${url(SITE.about_image)?`<img src="${url(SITE.about_image)}" alt="Classroom at Master Minds" onerror="this.style.display='none'">`:''}</div>
     <div class="tx">
       <span class="eyebrow on-dark">About Master Minds</span>
-      <h2>Nurturing academic excellence, shaping <span class="serif">future-ready</span> individuals</h2>
-      <p>At Master Minds, we are dedicated to nurturing academic excellence and shaping future-ready individuals. With a strong track record of guiding thousands of students toward their goals, we deliver high-quality coaching for competitive examinations, study abroad pathways, and skill development initiatives.</p>
-      <p>Our learner-centric approach combines experienced faculty, modern infrastructure, and personalized mentorship to ensure every student receives the guidance needed to succeed — academically and professionally.</p>
+      <h2>${accent(SITE.about_title)}</h2>
+      <p>${esc(SITE.about_p1)}</p>
+      <p>${esc(SITE.about_p2)}</p>
       <div class="pillars"><span>Experienced faculty</span><span>Modern infrastructure</span><span>Personalized mentorship</span></div>
       ${page==='home'?'<a href="#/about" class="btn btn-white" style="align-self:flex-start;padding:13px 22px">Learn More →</a>':''}
     </div>
@@ -663,10 +684,10 @@ const aboutMore = () => `
 const loop = arr => { if(!arr.length) return []; let a=arr.slice(); while(a.length<6) a=a.concat(arr); return a.concat(a); };
 
 function stories(page, det){
-  let list = STORIES[state.storyTab], tabs = true, title = 'Our Success Stories';
-  if (page==='study-abroad'){ list=STORIES.Abroad; tabs=false; title='Study abroad results'; }
-  if (det){ list=STORIES.India.concat(STORIES.Abroad).filter(s=>s[3]===det.slug); tabs=false; title='Results in '+det.name; }
-  if (!list.length) return '';
+  let list = RESULTS.filter(r=>r.region===state.storyTab), tabs = true, title = 'Our Success Stories';
+  if (page==='study-abroad'){ list=RESULTS.filter(r=>r.region==='Abroad'); tabs=false; title='Study abroad results'; }
+  if (det){ list=RESULTS.filter(r=>r.program===det.slug); tabs=false; title='Results in '+det.name; }
+  if (!RESULTS.length || (!list.length && !tabs)) return '';
   const items = loop(list);
   return `
 <section class="stories"><div class="wrap">
@@ -675,30 +696,30 @@ function stories(page, det){
     ${tabs?`<div class="tabs dark">${[['Study in India','India'],['Study Abroad','Abroad']].map(([l,k])=>`<button data-story-tab="${k}" class="${state.storyTab===k?'on':''}">${l}</button>`).join('')}</div>`:''}
   </div>
   <div class="marquee"><div class="track" style="animation-duration:${items.length*3.5}s">
-    ${items.map(s=>`<div class="scard"><div class="img">${esc(s[2].split(' ').map(w=>w[0]).join('').slice(0,3))}</div><div class="b"><span class="score">${s[0]}</span><span class="metric">${esc(s[1])}</span><span class="school">${esc(s[2])}</span></div></div>`).join('')}
+    ${items.map(s=>`<div class="scard"><div class="img">${url(s.photo_url)?`<img src="${url(s.photo_url)}" alt="${esc(s.student_name||s.school)}" loading="lazy">`:initials(s.school)}</div><div class="b"><span class="score">${esc(s.score)}</span><span class="metric">${esc(s.metric)}</span><span class="school">${esc(s.school)}</span>${s.student_name?`<span class="metric">${esc(s.student_name)}</span>`:''}</div></div>`).join('')}
   </div></div>
   ${(page==='home'||det)?'<a href="#/success" style="display:inline-block;margin-top:32px;color:var(--gold);font-weight:600">See all success stories →</a>':''}
 </div></section>`;
 }
 
 function testimonials(det){
-  const list = det ? TESTI.filter(t=>t[3]===det.slug) : TESTI;
+  const list = det ? TESTI.filter(t=>t.program===det.slug) : TESTI;
   if (!list.length) return '';
   const items = loop(list);
   return `
 <section class="wrap sec">
   <div class="sec-head"><span class="eyebrow">Testimonials</span><h2 class="h2">What Our Students Say</h2><p>Hear from students who achieved their dreams with us</p></div>
   <div class="marquee"><div class="track rtl" style="animation-duration:${items.length*5}s">
-    ${items.map(t=>`<figure class="tcard"><div style="display:flex;flex-direction:column;gap:12px"><span class="q">“</span><blockquote>${esc(t[2])}</blockquote></div>
-      <figcaption><span class="av">${t[0].split(' ').map(x=>x[0]).join('')}</span><span><strong>${esc(t[0])}</strong><small>${esc(t[1])}</small></span></figcaption></figure>`).join('')}
+    ${items.map(t=>`<figure class="tcard"><div style="display:flex;flex-direction:column;gap:12px"><span class="q">“</span><blockquote>${esc(t.quote)}</blockquote></div>
+      <figcaption><span class="av">${url(t.photo_url)?`<img src="${url(t.photo_url)}" alt="" loading="lazy">`:initials(t.name)}</span><span><strong>${esc(t.name)}</strong><small>${esc(t.result)}</small></span></figcaption></figure>`).join('')}
   </div></div>
 </section>`;
 }
 
-const gallery = () => `
+const gallery = () => !GALLERY.length ? '' : `
 <section class="wrap sec">
   <div class="sec-head"><span class="eyebrow">Gallery</span><h2 class="h2">Our Students Around the World</h2><p>Glimpses of our students fulfilling their dreams abroad</p></div>
-  <div class="gallery">${GALLERY.map(src=>`<button data-lightbox="${src}" aria-label="Open photo"><img src="${src}" alt="Master Minds student abroad" loading="lazy" onerror="this.style.display='none'"></button>`).join('')}</div>
+  <div class="gallery">${GALLERY.filter(g=>url(g.url)).map(g=>`<button data-lightbox="${url(g.url)}" aria-label="Open photo"><img src="${url(g.url)}" alt="${esc(g.caption||'Master Minds student')}" loading="lazy" onerror="this.style.display='none'">${g.caption?`<span class="gcap">${esc(g.caption)}</span>`:''}</button>`).join('')}</div>
 </section>`;
 
 function counsel(page, det){
@@ -707,16 +728,16 @@ function counsel(page, det){
     <div class="loans">
       <span class="eyebrow">Education loans</span>
       <h2>Educational Loans for your Study Abroad Journey Simplified</h2>
-      <div>${LOANS.map((t,i)=>`<div class="li"><span>0${i+1}</span><span>${t}</span></div>`).join('')}</div>
+      <div>${LOANS.map((t,i)=>`<div class="li"><span>${String(i+1).padStart(2,'0')}</span><span>${esc(t)}</span></div>`).join('')}</div>
       ${page!=='loans'?'<a href="#/loans" class="more">About education loans →</a>':''}
     </div>` : `
     <div class="contactc">
       <span class="eyebrow on-dark">Get in touch</span>
       <h2>We'll help you pick the right exam and plan.</h2>
       <div>
-        <a href="tel:${PHONE}"><span>Call</span><strong>${PHONE_FMT}</strong></a>
-        <a href="mailto:${EMAIL}"><span>Email</span><strong>${EMAIL}</strong></a>
-        <a href="#/branches"><span>Visit</span><strong>5 branches →</strong></a>
+        <a href="tel:${esc(SITE.phone)}"><span>Call</span><strong>${esc(SITE.phone_fmt||SITE.phone)}</strong></a>
+        <a href="mailto:${esc(SITE.email)}"><span>Email</span><strong>${esc(SITE.email)}</strong></a>
+        <a href="#/branches"><span>Visit</span><strong>${BRANCHES.length} branches →</strong></a>
       </div>
     </div>`;
   const preset = det ? (det.slug==='law'?'LAW':det.slug==='ipm'?'IPMAT':det.name) : '';
@@ -731,6 +752,7 @@ function counsel(page, det){
       </div>
       <div id="formSlot">
         <form class="form" id="inquiry">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
           <label>Name *<input required name="name" autocomplete="name"></label>
           <label>Contact No *<input required type="tel" name="phone" autocomplete="tel" pattern="[0-9+ -]{10,15}" title="Enter a valid phone number"></label>
           <label>Email *<input required type="email" name="email" autocomplete="email"></label>
@@ -738,6 +760,7 @@ function counsel(page, det){
           <label class="full">Course Interested *
             <select required name="course"><option value="">Select Course</option>${COURSES.map(c=>`<option ${c===preset?'selected':''}>${c}</option>`).join('')}</select>
           </label>
+          <p class="form-err full" hidden></p>
           <button type="submit" class="btn btn-navy full" style="padding:16px;font-size:16px;margin-top:6px">Submit Inquiry</button>
         </form>
       </div>
@@ -750,9 +773,9 @@ const branches = (page) => `
 <section class="wrap sec ${page==='branches'?'tight':''}">
   ${page!=='branches'?'<div class="sec-head"><span class="eyebrow">Visit us</span><h2 class="h2">Our Branches</h2><p>Find us across major cities</p></div>':''}
   <div class="bgrid">${BRANCHES.map(b=>`
-    <div class="bcard"><h3>${b[0]}</h3><p>${esc(b[1])}</p>
-      <div class="ph">${b[2].map(ph=>`<a href="tel:${ph}">${ph}</a>`).join('')}</div>
-      <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Master Minds '+b[1])}" target="_blank" rel="noopener" style="font-size:14px;font-weight:600;color:var(--gold-ink)">Get directions →</a>
+    <div class="bcard"><h3>${esc(b.city)}</h3><p>${esc(b.address)}</p>
+      <div class="ph">${(b.phones||[]).map(ph=>`<a href="tel:${esc(ph)}">${esc(ph)}</a>`).join('')}</div>
+      <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Master Minds '+b.address)}" target="_blank" rel="noopener" style="font-size:14px;font-weight:600;color:var(--gold-ink)">Get directions →</a>
     </div>`).join('')}
   </div>
 </section>`;
@@ -773,17 +796,17 @@ const login = () => `
 const policy = (page) => `
 <section class="policy">
   ${POLICY[page].map(([h,p,list])=>`<h2>${h}</h2>${p?`<p>${p}</p>`:''}${list?`<ul>${list.map(i=>`<li>${i}</li>`).join('')}</ul>`:''}`).join('')}
-  <p>Questions about this policy? Write to <a href="mailto:${EMAIL}" style="font-weight:600">${EMAIL}</a> or call <a href="tel:${PHONE}" style="font-weight:600">${PHONE}</a>.</p>
+  <p>Questions about this policy? Write to <a href="mailto:${esc(SITE.email)}" style="font-weight:600">${esc(SITE.email)}</a> or call <a href="tel:${esc(SITE.phone)}" style="font-weight:600">${esc(SITE.phone)}</a>.</p>
   <div class="pills"><a href="#/refund-policy">Refund Policy</a><a href="#/terms">Terms and Conditions</a><a href="#/privacy">Privacy Policy</a></div>
 </section>`;
 
 const cta = () => `
 <section class="wrap sec">
   <div class="navy-block cta">
-    <div><h2>Ready to start? <span class="serif">Talk to our experts.</span></h2>
-      <p>Seamlessly apply to multiple colleges and unlock exclusive benefits on your application fees.</p></div>
+    <div><h2>${accent(SITE.cta_title)}</h2>
+      <p>${esc(SITE.cta_text)}</p></div>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <a href="tel:${PHONE}" class="btn btn-gold">Call ${PHONE}</a>
+      <a href="tel:${esc(SITE.phone)}" class="btn btn-gold">Call ${esc(SITE.phone)}</a>
       <a href="#/contact" class="btn btn-ghost">Send an inquiry</a>
     </div>
   </div>
@@ -833,6 +856,10 @@ function renderStatic(){
     '<span class="eyebrow sm" style="padding:16px 0 6px">Programs</span><div class="grid2">' +
     PROGS.map(p=>`<a href="${p.href}">${p.name}</a>`).join('') + '</div><a href="#/contact" style="padding:14px 0 0;font-weight:600;border:0">Talk to our Experts</a>';
   $('#yr').textContent = new Date().getFullYear();
+  $('#fText').textContent = SITE.footer_text;
+  $('#fPhone').textContent = SITE.phone; $('#fPhone').href = 'tel:'+SITE.phone;
+  $('#fEmail').textContent = SITE.email; $('#fEmail').href = 'mailto:'+SITE.email;
+  $('#stickyCall').href = 'tel:'+SITE.phone;
 }
 
 function closeMenus(){
@@ -875,13 +902,7 @@ document.addEventListener('submit', e => {
     location.hash = m ? m.href : '#/programs';
   } else if (f.id==='inquiry'){
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(f));
-    // TODO: connect to your backend / Google Form / email service here. Example:
-    // fetch('/api/inquiry', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)});
-    const first = esc(String(data.name).trim().split(' ')[0]);
-    $('#formSlot').innerHTML = `<div class="done"><span class="check">✓</span><h4>Thanks, ${first}.</h4>
-      <p>Our expert will call you shortly about ${esc(data.course)}. You can also reach us on ${PHONE_FMT}.</p>
-      <button class="btn btn-outline" style="align-self:flex-start" data-act="reset">Send another inquiry</button></div>`;
+    submitInquiry(f);
   } else if (f.id==='loginForm'){
     e.preventDefault();
     $('#loginSlot').innerHTML = `<div class="done" style="padding:20px 0"><span class="check">✓</span><h3 style="font-size:24px;color:var(--head)">Signed in to the ${state.role} portal</h3>
@@ -891,6 +912,73 @@ document.addEventListener('submit', e => {
 
 function keepScroll(fn){ const y = scrollY; fn(); scrollTo(0, y); }
 
+/* ---------- live data (Supabase) ---------- */
+const CFG = window.MM_CONFIG || {};
+const LIVE = !!(CFG.supabaseUrl && CFG.supabaseAnonKey);
+let dbPromise = null;
+function getDb(){
+  if (!LIVE) return Promise.resolve(null);
+  if (!dbPromise) dbPromise = new Promise((res, rej) => {
+    if (window.supabase && window.supabase.createClient) return res();
+    const sc = document.createElement('script'); sc.src = SUPABASE_CDN; sc.onload = res; sc.onerror = () => rej(new Error('Could not load Supabase'));
+    document.head.appendChild(sc);
+  }).then(() => window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {auth:{persistSession:false, autoRefreshToken:false}}))
+    .catch(err => { dbPromise = null; throw err; });
+  return dbPromise;
+}
+function applyData(d){
+  if (Array.isArray(d.results)) RESULTS = d.results;
+  if (Array.isArray(d.testimonials)) TESTI = d.testimonials;
+  if (Array.isArray(d.gallery)) GALLERY = d.gallery;
+  const c = d.content || {};
+  if (c.site && typeof c.site==='object') Object.assign(SITE, c.site);
+  if (Array.isArray(c.branches)) BRANCHES = c.branches;
+  if (Array.isArray(c.loans)) LOANS = c.loans;
+  if (c.program_desc && typeof c.program_desc==='object') Object.assign(DESC, c.program_desc);
+}
+function formBusy(){ const f = document.getElementById('inquiry'); return f && [...f.elements].some(el => el.name && el.name!=='website' && el.value); }
+function refresh(){ renderStatic(); if (!formBusy()) keepScroll(render); }
+async function loadLive(){
+  if (!LIVE) return;
+  try {
+    const db = await getDb();
+    const pub = t => db.from(t).select('*').eq('published', true).order('sort', {ascending:true}).order('created_at', {ascending:true});
+    const [r, t, g, c] = await Promise.all([pub('results'), pub('testimonials'), pub('gallery'), db.from('content').select('key,value')]);
+    const err = [r,t,g,c].find(x => x.error); if (err) throw err.error;
+    const d = {results:r.data, testimonials:t.data, gallery:g.data, content:Object.fromEntries(c.data.map(x => [x.key, x.value]))};
+    applyData(d);
+    try { localStorage.setItem('mm_live', JSON.stringify(d)); } catch {}
+    refresh();
+  } catch (err) { console.warn('Master Minds: live content unavailable, showing saved content.', err); }
+}
+async function submitInquiry(f){
+  const data = Object.fromEntries(new FormData(f));
+  const btn = f.querySelector('button[type=submit]'), errEl = f.querySelector('.form-err');
+  const done = () => {
+    $('#formSlot').innerHTML = `<div class="done"><span class="check">✓</span><h4>Thanks, ${esc(String(data.name).trim().split(' ')[0])}.</h4>
+      <p>Our expert will call you shortly about ${esc(data.course)}. You can also reach us on ${esc(SITE.phone_fmt||SITE.phone)}.</p>
+      <button class="btn btn-outline" style="align-self:flex-start" data-act="reset">Send another inquiry</button></div>`;
+  };
+  if (data.website) return done();            // spam bot filled the hidden field
+  errEl.hidden = true; btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const db = await getDb();
+    if (db) {
+      const row = {name:data.name.trim().slice(0,120), phone:data.phone.trim().slice(0,20), email:data.email.trim().slice(0,200),
+        city:data.city.trim().slice(0,100), course:String(data.course).slice(0,100)};
+      const {error} = await db.from('inquiries').insert(row);
+      if (error) throw error;
+    } else console.warn('Master Minds: config.js is not filled in, so this enquiry was not saved.');
+    done();
+  } catch (err) {
+    console.error(err);
+    btn.disabled = false; btn.textContent = 'Submit Inquiry';
+    errEl.innerHTML = `Sorry, we couldn't send your enquiry. Please try again or call us on <a href="tel:${esc(SITE.phone)}">${esc(SITE.phone_fmt||SITE.phone)}</a>.`;
+    errEl.hidden = false;
+  }
+}
+if (LIVE) { try { const cached = JSON.parse(localStorage.getItem('mm_live')||'null'); if (cached) applyData(cached); } catch {} }
+
 window.addEventListener('hashchange', () => {
   if (location.hash && !location.hash.startsWith('#/')) return;
   closeMenus(); render(); scrollTo(0,0);
@@ -898,6 +986,7 @@ window.addEventListener('hashchange', () => {
 
 renderStatic();
 render();
+loadLive();
 })();
 </script>
 </body>
