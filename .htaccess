@@ -1,0 +1,13 @@
+# Master Minds — site-wide rules (Hostinger / Apache / LiteSpeed)
+DirectoryIndex index.html
+Options -Indexes
+
+# Hide Git data, docs and setup files that the Git deployment copies into public_html.
+RedirectMatch 404 (?i)/\.git
+RedirectMatch 404 (?i)^/database(/|$)
+<FilesMatch "(?i)\.(md|sql|yml|yaml|log|bak|sample\.php)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

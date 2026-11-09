@@ -17,6 +17,10 @@ return [
     // Any long random text. Used to anonymise visitor IP addresses for spam protection.
     'secret'  => 'change-this-to-any-long-random-text',
 
+    // Needed once, to create the first admin account at /admin.html. Make up any code (6+ characters),
+    // type it on that page, and you can delete this line afterwards.
+    'setup_code' => '',
+
     // Optional: get an email for every new enquiry. Leave '' to turn off.
     'notify_email' => '',
 

@@ -1,90 +1,85 @@
-# Setting up the website and admin panel on Hostinger
+# Setup: masterminds.mosaicengine.in on Hostinger
 
-The site runs on your Hostinger hosting with your Hostinger MySQL database.
+Hostinger pulls this GitHub repository straight into the website. Every push to `main` goes live automatically.
+Enquiries, reviews, results and website text are stored in your Hostinger MySQL database. Uploaded photos are stored in `uploads/` on the server.
 
-| Piece | Where it runs |
-|---|---|
-| Website (`index.html`) | Hostinger, in `public_html` |
-| Admin panel (`admin.html`) | Hostinger, at `yourdomain.com/admin.html` |
-| API (`api/index.php`) | Hostinger. PHP talks to the MySQL database. |
-| Photos you upload | Hostinger, in `public_html/uploads/` |
-| Enquiries, reviews, results, content | Your Hostinger MySQL database |
-
-Do these steps once. After that, every change pushed to GitHub uploads itself to Hostinger.
+You do steps 1–5 once. It takes about 15 minutes.
 
 ---
 
-## 1. Create the database tables
+## 1. Connect the GitHub repository (skip if it's already deploying)
 
-1. In **hPanel → Databases → Management**, create a database if you don't already have one.
-   Note the **database name**, **username** and **password**. They look like `u123456789_masterminds`.
-2. Click **Enter phpMyAdmin** next to that database.
-3. Go to the **Import** tab, choose [`database/schema.sql`](database/schema.sql) from this repository and click **Import** (or **Go**).
-   This creates the tables and fills in the website's current results, reviews, gallery and text.
+1. **hPanel → Websites → masterminds.mosaicengine.in → Manage → Advanced → GIT.**
+2. Repository: `https://github.com/sanskarp661-sudo/masterminds.git`. Branch: `main`. Directory: leave **empty**.
+   Hostinger needs the site folder to be empty for the first deploy. Delete any default `index.php` / `default.php` there first.
+3. Click **Create**, then **Deploy**.
+4. Click **Auto Deployment** and copy the **Webhook URL**.
+   In GitHub, open the repo **Settings → Webhooks → Add webhook**, paste it into *Payload URL*, keep "Just the push event", and click **Add webhook**.
+   From now on, every push goes live within seconds.
 
-> You can use an existing database. All the tables have their own names (`results`, `testimonials`, `gallery`, `content`, `inquiries`, `admins`, `rate_limits`), so check that none of these already exist in it.
+Check: <https://masterminds.mosaicengine.in> shows the website.
 
-## 2. Add your database details to the server
+## 2. Create the database tables
 
-1. Open **hPanel → Files → File Manager**.
-2. Go to the folder that **contains** `public_html` (one level up, usually `domains/yourdomain.com/`).
-3. Create a new file called **`mm-config.php`** there. Paste in the contents of [`api/config.sample.php`](api/config.sample.php) and fill in:
-   - `db_name`, `db_user`, `db_pass`: from step 1. `db_host` stays `localhost`.
-   - `secret`: type any long random text.
-   - `notify_email`: *(optional)* your email address, to get an email for every new enquiry.
+1. **hPanel → Databases → Management.** Use your existing database (or create one). Note its **database name**, **username** and **password**.
+2. Click **Enter phpMyAdmin** for that database → **Import** tab → choose `database/schema.sql` from this repo (download it from GitHub) → **Import**.
 
-Keeping this file outside `public_html` means nobody can open it in a browser, and deployments never overwrite it.
-(If File Manager doesn't let you go above `public_html`, save it as `public_html/api/config.php` instead. That folder blocks direct access too.)
+This creates 7 tables (`results`, `testimonials`, `gallery`, `content`, `inquiries`, `admins`, `rate_limits`) and fills in the site's current content. If your database already has tables with any of these names, use a new database instead.
 
-## 3. Upload the website
+## 3. Create the server settings file
 
-**Option A: automatic from GitHub (recommended).** Every push to `main` uploads the site.
+1. **hPanel → Files → File Manager.** Open the folder **that contains** your site's folder. If the site is in `public_html/`, that's one level up from it. If it's in `public_html/masterminds/`, that's `public_html/`.
+2. Create a file named **`mm-config.php`** there and paste this, filling in your values:
 
-1. In **hPanel → Files → FTP Accounts**, note the **FTP IP/hostname** and **username**, and set or reset the password.
-2. In GitHub, open the repository **Settings → Secrets and variables → Actions → New repository secret** and add:
-   | Name | Value |
-   |---|---|
-   | `FTP_SERVER` | the FTP hostname or IP, e.g. `ftp.yourdomain.com` |
-   | `FTP_USERNAME` | the FTP username |
-   | `FTP_PASSWORD` | the FTP password |
-   | `FTP_DIR` | *(optional)* folder to upload into. Default `public_html/`. If your FTP account already opens inside `public_html`, set this to `./` |
-3. Open the **Actions** tab → **Deploy to Hostinger** → **Run workflow**. Later pushes upload automatically.
+   ```php
+   <?php
+   return [
+       'db_host' => 'localhost',
+       'db_name' => 'u123456789_yourdb',      // from step 2
+       'db_user' => 'u123456789_youruser',    // from step 2
+       'db_pass' => 'your-database-password', // from step 2
+       'secret'  => 'type-any-long-random-text-here',
+       'setup_code' => 'make-up-a-code',      // used once in step 4
+       'notify_email' => '',                  // optional: your email, to get an alert for every enquiry
+       'site_url' => 'https://masterminds.mosaicengine.in',
+       'allowed_origins' => [],
+   ];
+   ```
 
-**Option B: by hand.** Upload these into `public_html` with File Manager: `index.html`, `admin.html`, `config.js`, the `api` folder and the `uploads` folder.
+This file is **not** in GitHub, so your passwords never become public and deployments never overwrite it.
 
-Make sure the **`uploads`** folder is writable (File Manager → right-click → Permissions → `755`). Photos uploaded from the admin panel are saved there.
+Check: open <https://masterminds.mosaicengine.in/api/index.php?a=status>. You should see `{"admin":null,"needsSetup":true}`.
+If it says it can't connect to the database, re-check the name, user and password.
 
 ## 4. Create your admin account
 
-Open **`https://yourdomain.com/admin.html`**.
+1. Open <https://masterminds.mosaicengine.in/admin.html>.
+2. Enter your **setup code** (from step 3), your name, email and a password (8+ characters), then click **Create admin & sign in**.
+3. That page now locks for good. You can delete the `setup_code` line from `mm-config.php`.
 
-The first time, it asks you to **create the first admin** (name, email, password). That page only works once. After that, everyone signs in normally.
+Add more people later under **Admins & Password** in the panel.
 
-You can add more admins, remove them, and change your password under **Admins & Password**.
+## 5. Turn on HTTPS
+
+**hPanel → Security → SSL:** make sure masterminds.mosaicengine.in has an SSL certificate (Hostinger gives it free), and turn on **Force HTTPS**.
 
 ---
 
-## What the admin panel does
+## Using it day to day
 
-- **Form Submissions:** every enquiry from the counseling form. Search them, mark each New / Contacted / Enrolled / Closed, add private notes, delete, and export to CSV (opens in Excel). New ones show a red count in the menu.
-- **Results:** success-story scores with optional student photo, India/Abroad tab and program.
-- **Reviews:** student testimonials with optional photo.
-- **Gallery:** upload several photos at once, add captions, reorder, hide or delete.
-- **Website Content:** phone, email, home banner text and image, highlight numbers, About text and image, call-to-action, footer text, branches, education-loan points and program card descriptions.
-- **Admins & Password:** add or remove admins and change your password.
+- **Change the site's code:** push to `main` on GitHub. It goes live automatically.
+- **Change content:** use <https://masterminds.mosaicengine.in/admin.html>. Changes go live as soon as you save.
+  - **Form Submissions:** search, set the status (New / Contacted / Enrolled / Closed), add notes, delete, export to CSV.
+  - **Results, Reviews:** add, edit, hide or delete, with photos.
+  - **Gallery:** upload several photos at once, caption, reorder, hide or delete.
+  - **Website Content:** phone, email, banner, highlight numbers, About text, branches, loan points, program descriptions. Wrap words in `*stars*` for the gold italic style, e.g. `Happy *Studying*`.
+  - **Admins & Password:** add or remove admins, change your password.
 
-Anything can be hidden without deleting it. Changes show on the website straight away.
+## If something goes wrong
 
-## Good to know
-
-- **Formatting:** in headings, wrap words in `*stars*` for the gold italic style, e.g. `Happy *Studying*`.
-- **Photos:** JPG, PNG, WebP or GIF, up to 5 MB. Smaller photos make the site faster.
-- **Security:**
-  - Passwords are stored encrypted (hashed).
-  - Sign-in is limited to 10 wrong attempts per 15 minutes.
-  - The enquiry form accepts up to 5 enquiries per visitor every 10 minutes, and includes a hidden spam trap.
-  - Only admins can read enquiries or change anything.
-  - Use HTTPS on your domain (hPanel → Security → SSL), which Hostinger gives free.
-- **If the server can't be reached,** the website keeps showing the last content it loaded, so it never looks broken.
-- **Email alerts** use Hostinger's built-in mail. If they land in spam, mark them "not spam" once.
-- **Website on a different domain from the API** (e.g. GitHub Pages): set `apiBase` in `config.js` to the full API address, and add the website's address to `allowed_origins` in `mm-config.php`. Hosting everything on Hostinger is simpler.
+| Problem | Fix |
+|---|---|
+| Admin page says "Can't reach the server" | Check `mm-config.php` is in the right folder (step 3) and `api/index.php?a=status` works. |
+| Photo upload fails | In File Manager, set the `uploads` folder permissions to `755`. |
+| No enquiry alert emails | Check spam once and mark as "not spam". Hostinger's mail can be slow to start. |
+| Website shows old content after a push | Check the deployment status in **hPanel → Advanced → GIT** and clear your browser cache. |

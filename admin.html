@@ -260,6 +260,7 @@ async function boot(){
   if (st.needsSetup){
     setupMessage(`<h2>Create the first admin</h2><p>No admin account exists yet. The account you create now can add more admins later. This page only works once.</p>
       <div class="msg err hidden" id="setupErr"></div>
+      <label class="f">Setup code <span class="hint">the <code>setup_code</code> you put in mm-config.php</span><input class="input" name="code" required autocomplete="off"></label>
       <label class="f">Your name<input class="input" name="name" autocomplete="name" maxlength="120"></label>
       <label class="f">Email<input class="input" type="email" name="email" required autocomplete="username"></label>
       <label class="f">Password <span class="hint">at least 8 characters</span><input class="input" type="password" name="password" required minlength="8" autocomplete="new-password"></label>
@@ -282,7 +283,7 @@ $('#setupForm').addEventListener('submit', async e => {
   const f = e.target, btn = f.querySelector('button[type=submit]'), errEl = $('#setupErr');
   if (!btn) return;
   errEl.classList.add('hidden'); btn.disabled = true;
-  try { const r = await api('setup', {name:f.name.value, email:f.email.value, password:f.password.value}, {auth:true}); enterApp(r.admin); toast('Admin account created'); }
+  try { const r = await api('setup', {code:f.code.value, name:f.name.value, email:f.email.value, password:f.password.value}, {auth:true}); enterApp(r.admin); toast('Admin account created'); }
   catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
   btn.disabled = false;
 });

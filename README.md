@@ -14,7 +14,7 @@ Runs on Hostinger: PHP + MySQL.
 | `config.js` | Tells the pages where the API is (`api/` by default). |
 | `SETUP.md` | **Step-by-step Hostinger setup.** |
 
-Every push to `main` uploads the site to Hostinger over FTP (`.github/workflows/deploy.yml`) once the FTP secrets are added. See `SETUP.md`, step 3.
+Live at **https://masterminds.mosaicengine.in**. Hostinger deploys this repo directly, so every push to `main` goes live. Admin panel: `/admin.html`.
 
 ## Still to do before going live
 - Follow `SETUP.md`.

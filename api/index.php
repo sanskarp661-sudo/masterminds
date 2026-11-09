@@ -20,7 +20,7 @@ function out($data, int $code = 200): void { http_response_code($code); echo jso
 function fail(string $msg, int $code = 400): void { out(['error' => $msg], $code); }
 
 if (!is_array($CONFIG)) fail('The server is not configured yet: create mm-config.php (see SETUP.md).', 503);
-$cfg = $CONFIG + ['allowed_origins' => [], 'notify_email' => '', 'secret' => '', 'site_url' => ''];
+$cfg = $CONFIG + ['allowed_origins' => [], 'notify_email' => '', 'secret' => '', 'site_url' => '', 'setup_code' => ''];
 
 /* ---------------------------------------------------------------- CORS (only needed if the site and API are on different domains) */
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
@@ -206,6 +206,10 @@ case 'status': {
 case 'setup': {          // creates the very first admin; disabled once any admin exists
     $needPost();
     $b = body();
+    $code = (string)($cfg['setup_code'] ?? '');
+    if (strlen($code) < 6) fail('Add a setup_code (at least 6 characters) to mm-config.php on the server first.', 403);
+    if (rateLimited('login', 10, 15)) fail('Too many attempts. Please wait 15 minutes and try again.', 429);
+    if (!hash_equals($code, (string)($b['code'] ?? ''))) { hit('login'); fail('The setup code is wrong.', 403); }
     $db->beginTransaction();
     if ((int)$db->query('SELECT COUNT(*) FROM admins FOR UPDATE')->fetchColumn() > 0) { $db->rollBack(); fail('An admin already exists. Please sign in.', 403); }
     $email = strtolower(str($b['email'] ?? '', 190, true, 'Email'));
