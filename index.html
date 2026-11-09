@@ -146,7 +146,9 @@ header{position:sticky;top:0;z-index:20;background:var(--header-bg);backdrop-fil
 .pcard:hover{border-color:var(--head);transform:translateY(-3px);box-shadow:var(--shadow);color:var(--ink)}
 .pcard.hit{outline:2px solid var(--gold)}
 .pcard .top{display:flex;justify-content:space-between;align-items:flex-start}
-.tile{min-width:56px;height:56px;padding:0 10px;border-radius:14px;display:grid;place-items:center;font:700 15px 'Bricolage Grotesque',sans-serif}
+.tile{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;transition:transform .2s}
+.tile svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pcard:hover .tile{transform:rotate(-6deg) scale(1.06)}
 .tile.in{background:#16203f;color:#f2b33d}.tile.ab{background:#f2b33d;color:#16203f}
 .cat{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);padding:5px 10px;border-radius:999px}
 .pcard .bot{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -357,6 +359,22 @@ const PROGS = [
   ['TOEFL','TOEFL','Abroad','toefl'],['SA','Study Abroad','Abroad','study-abroad']
 ].map(p => ({code:p[0], name:p[1], region:p[2], slug:p[3], cat:p[2]==='India'?'Study in India':'Study Abroad', href:p[3]==='study-abroad'?'#/study-abroad':'#/program/'+p[3]}));
 
+const ICONS = {
+  mba:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+  law:'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  ipm:'<path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/>',
+  bba:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
+  cuet:'<path d="M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+  'hotel-management':'<path d="M3 20a1 1 0 0 1-1-1v-1a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1Z"/><path d="M20 16a8 8 0 1 0-16 0"/><path d="M12 4v4"/><path d="M10 4h4"/>',
+  gmat:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M16 14v4"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"/>',
+  gre:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  sat:'<path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/>',
+  ielts:'<path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/>',
+  toefl:'<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>',
+  'study-abroad':'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>'
+};
+const icon = slug => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[slug]||''}</svg>`;
+
 const STORIES = {
   India:[['99.98','CAT Percentile','IIM Ahmedabad','mba'],['99.5','CAT Percentile','IIM Bangalore','mba'],['99.4','CAT Percentile','IIM Calcutta','mba'],['99.0','CAT Percentile','FMS Delhi','mba'],['98.5','XAT Percentile','XLRI Jamshedpur','mba']],
   Abroad:[['8.5','IELTS Band','Oxford University','ielts'],['335','GRE Score','Harvard University','gre'],['1550','SAT Score','Stanford University','sat'],['118','TOEFL Score','MIT','toefl'],['85','PTE Score','University of Toronto','pte']]
@@ -550,7 +568,7 @@ function programs(page){
   <div class="pgrid">${list.map(p=>{
     const hit = q && (p.name.toLowerCase().includes(q)||p.code.toLowerCase().includes(q));
     return `<a href="${p.href}" class="pcard ${hit?'hit':''}">
-      <div class="top"><span class="tile ${p.region==='India'?'in':'ab'}">${p.code}</span><span class="cat">${p.cat}</span></div>
+      <div class="top"><span class="tile ${p.region==='India'?'in':'ab'}">${icon(p.slug)}</span><span class="cat">${p.cat}</span></div>
       <div class="bot"><h3>${esc(p.name)}</h3><span class="arr">→</span></div></a>`;}).join('')}
   </div>
 </section>`;
