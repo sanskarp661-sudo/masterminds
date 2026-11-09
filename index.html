@@ -149,8 +149,13 @@ header{position:sticky;top:0;z-index:20;background:var(--header-bg);backdrop-fil
 .tile{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;transition:transform .2s}
 .tile svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .pcard:hover .tile{transform:rotate(-6deg) scale(1.06)}
-.tile.in{background:#16203f;color:#f2b33d}.tile.ab{background:#f2b33d;color:#16203f}
-.cat{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);padding:5px 10px;border-radius:999px}
+.tile{background:#16203f;color:#f2b33d}
+.cat{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.cat.in{color:#1f6b45;background:#e3f2e9}
+.cat.ab{color:#9a5b00;background:#fdf0d5}
+.cat svg{width:13px;height:13px;fill:currentColor}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cat.in{color:#7fd4a6;background:rgba(127,212,166,.12)}:root:not([data-theme="light"]) .cat.ab{color:#f2b33d;background:rgba(242,179,61,.14)}}
+:root[data-theme="dark"] .cat.in{color:#7fd4a6;background:rgba(127,212,166,.12)}:root[data-theme="dark"] .cat.ab{color:#f2b33d;background:rgba(242,179,61,.14)}
 .pcard .bot{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .pcard h3{font-size:21px;letter-spacing:-.01em;color:var(--head)}
 .pcard .arr{font-size:20px;color:var(--gold-ink)}
@@ -373,6 +378,7 @@ const ICONS = {
   toefl:'<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>',
   'study-abroad':'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>'
 };
+const PLANE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>';
 const icon = slug => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[slug]||''}</svg>`;
 
 const STORIES = {
@@ -568,7 +574,7 @@ function programs(page){
   <div class="pgrid">${list.map(p=>{
     const hit = q && (p.name.toLowerCase().includes(q)||p.code.toLowerCase().includes(q));
     return `<a href="${p.href}" class="pcard ${hit?'hit':''}">
-      <div class="top"><span class="tile ${p.region==='India'?'in':'ab'}">${icon(p.slug)}</span><span class="cat">${p.cat}</span></div>
+      <div class="top"><span class="tile">${icon(p.slug)}</span><span class="cat ${p.region==='India'?'in':'ab'}">${p.region==='Abroad'?PLANE:''}${p.cat}</span></div>
       <div class="bot"><h3>${esc(p.name)}</h3><span class="arr">→</span></div></a>`;}).join('')}
   </div>
 </section>`;
